@@ -1,4 +1,10 @@
 function vert(src, name, path, base) {
+    return new dna.gl.Shader({
+        type: gl.VERTEX_SHADER,
+        name: name,
+        src:  src,
+    })
+    /*
     log(`creating and compiling vertex shader [${name}]...`)
     try {
         const vShader = gl.createShader(gl.VERTEX_SHADER)
@@ -14,4 +20,5 @@ function vert(src, name, path, base) {
         log.err(e)
     }
     return `vertex-shader-dump/${name}:[${src}]`
+    */
 }

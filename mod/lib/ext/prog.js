@@ -1,4 +1,10 @@
 function prog(src, name, path) {
+    return new dna.gl.Program({
+        name,
+        src,
+    })
+
+    /*
     const ids = src.trim().split(':')
     if (ids.length !== 2) throw 'a vertex and a fragment shaders expected to be defined in .prog'
 
@@ -26,4 +32,5 @@ function prog(src, name, path) {
     pin.glProg[name] = glProgram
 
     return glProgram
+    */
 }
