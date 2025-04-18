@@ -97,6 +97,14 @@ function set(rv, x, y, z) {
     return this
 }
 
+function fromArray(buf, i) {
+    return create(
+        buf[i],
+        buf[i+1],
+        buf[i+2],
+    )
+}
+
 // add two vec3 arrays
 //
 // @param {array/vec3} rv - the receiving vec3 array
@@ -555,6 +563,27 @@ function inormalize(iv) {
     return nv
 }
 
+// normalize provided 3D vector
+//
+// @param {array/vec3} tv - the target 3D vector
+// @returns {obj/lib/vec3} vec3 library object for chaining
+function tnormalize(tv) {
+    const x = tv[0], y = tv[1], z = tv[2]
+    const len2 = x*x + y*y + z*z
+    if (len2 > 0) {
+        const nfactor = 1 / Math.sqrt(len2)
+        tv[0] = x * nfactor
+        tv[1] = y * nfactor
+        tv[2] = z * nfactor
+    } else {
+        // no direction information in the original vec3
+        tv[0] = 0
+        tv[1] = 0
+        tv[2] = 0
+    }
+    return tv
+}
+
 
 // rotate a 3D vector around the x-axis
 //
@@ -785,6 +814,11 @@ function near(iv1, iv2, epsilon) {
     )
 }
 
+function push(buf, v) {
+    buf.push(v[0], v[1], v[2])
+    return this
+}
+
 // get a 3D vector array string dump
 //
 // @param {array/vec3/immutable} iv - the source 3D vector
@@ -880,6 +914,7 @@ extend(vec3, {
     clone,
     copy,
     set,
+    fromArray,
 
     add,
     iadd,
@@ -914,6 +949,7 @@ extend(vec3, {
     iround: iround,
     normalize,
     inormalize,
+    tnormalize,
 
     rotateX,
     irotateX,
@@ -937,6 +973,8 @@ extend(vec3, {
     lenSq,
     equals,
     near,
+
+    push,
 
     str,
     toString,

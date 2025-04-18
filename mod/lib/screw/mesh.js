@@ -1,14 +1,120 @@
-(() => {
-
 // mesh generator
+const mesh = (() => {
+
+const flags = {
+    UV:     true,
+    smooth: false,
+}
+const stack  = [],
+      mstack = []
+
+// === geo state ===
+let geo
+let x,y,z,w,                // working registers
+    M = mat4.identity(),    // current geo model matrix
+    P = 13,                 // current precision qualifier
+    S                       // smooth flag, sharp if not set
+// let s = [], m = [], b = [] // value and matrix stacks
+
+function push(x)  {
+    stack.push(x)
+}
+
+function pop() {
+    return stack.pop()
+}
+
+function peek() {
+    return stack[stack.length - 1]
+}
+
+function popV4() {
+    w = pop()
+    z = pop()
+    y = pop()
+    x = pop()
+    return vec4(x, y, z, w)
+}
+
+// apply a function for each vertice value
+function vxApply(fn) {
+    for (let i = 0; i < geo.vertices.length; i++) {
+        geo.vertices[i] = fn(geo.vertices[i], i)
+    }
+}
+
+// apply function to x/y/z vertex tripplets
+function v3c(fn) {
+    let swap = true, bv, ln = g.v.length
+    for (let i = 0; i < ln; i += 3) {
+        const x = g.v[i], y = g.v[i+1], z = g.v[i+2]
+        const v = fn(x, y, z)
+        if (swap && i % 9 === 3) {
+            bv = v
+        } else {
+            v3x(v)
+            if (swap && i % 9 === 6 && bv) {
+                v3x(bv)
+            }
+        }
+    }
+}
+
+// apply current model matrix to provided array and push values
+function wM(w) {
+    for (let i = 0; i < w.length; i += 3) {
+        v3x(vec3(w[i], w[i+1], w[i+2]))
+    }
+}
+
+// apply the geo matrix to vec3 and push the results to vertices
+function v3x(v) {
+    vec3.mulM4(v, M)
+    g.v.push(v[0])
+    g.v.push(v[1])
+    g.v.push(v[2])
+}
+
+// merge x/y/z into a vec3, apply the geo matrix and push the results to vertices
+function vx(x, y, z) {
+    const v = vec3(x, y, z)
+    vec3.mulM4(v, M)
+    g.v.push(v[0])
+    g.v.push(v[1])
+    g.v.push(v[2])
+}
+
+// apply geo transformations to nx before pushing in
+function nx(x, y, z) {
+    const v = vec3(x, y, z)
+    vec3.mulM4(v, M)
+    g.n.push(v[0])
+    g.n.push(v[1])
+    g.n.push(v[2])
+}
+
+// pop vec3 from the stack
+function pv3() {
+    z = pop(), y = pop(), x = pop()
+    return vec3(x, y, z)
+}
+    
 const $ = {
     gen: function() {
-        _g = {
+        geo = {
+            vertices: [],
+            normals:  [],
+            faces:    [],
+            colors:   [],
+            uvs:      [],
+
+            /*
             v: [],
-            n:  [],
-            f:    [],
-            c:   [],
-            u:      [],
+            n: [],
+            f: [],
+            c: [],
+            u: [],
+            */
         }
         return this
     },
@@ -29,10 +135,10 @@ const $ = {
         stack.push(v2)
     },
     mpush: () => {
-        mstack.push( mat4.clone(_gMatrix) )
+        mstack.push( mat4.clone(geoMatrix) )
     },
     mpop: () => {
-        _gMatrix = mstack.pop()
+        geoMatrix = mstack.pop()
     },
 
     // basic ops
@@ -55,17 +161,17 @@ const $ = {
     },
 
     precision: function(v) {
-        _gSpherePrecision = v || pop()
+        geoSpherePrecision = v || pop()
         return this
     },
 
     smooth: function() {
-        _gSmooth = 1
+        flags.smooth = 1
         return this
     },
 
     sharp: function() {
-        _gSmooth = 0
+        flags.smooth = 0
         return this
     },
 
@@ -73,12 +179,12 @@ const $ = {
         for (let i = 0; i < w.length; i += 3) {
             vx(w[i], w[i+1], w[i+2])
         }
-        //_g.vertices = _g.vertices.concat(w)
+        //geo.vertices = geo.vertices.concat(w)
         return this
     },
 
     faces: function(fv) {
-        _g.faces = _g.faces.concat(fv)
+        geo.faces = geo.faces.concat(fv)
         return this
     },
 
@@ -86,12 +192,12 @@ const $ = {
         for (let i = 0; i < w.length; i += 3) {
             nx(w[i], w[i+1], w[i+2])
         }
-        //_g.normals = _g.normals.concat(nv)
+        //geo.normals = geo.normals.concat(nv)
         return this
     },
 
     uvs: function(uw) {
-        _g.uvs = _g.uvs.concat(uw)
+        geo.uvs = geo.uvs.concat(uw)
         return this
     }, 
 
@@ -103,7 +209,7 @@ const $ = {
     },
 
     plane: function() {
-        _g.vertices = _g.vertices.concat([
+        geo.vertices = geo.vertices.concat([
             -1, 0,-1,  1, 0, 1,  1, 0,-1,    
             -1, 0,-1, -1, 0, 1,  1, 0, 1
         ])
@@ -111,7 +217,7 @@ const $ = {
     },
 
     cube: function() {
-        _g.vertices = _g.vertices.concat([
+        geo.vertices = geo.vertices.concat([
             // top face
             -1, 1,-1,  -1, 1, 1,   1, 1, 1,
             -1, 1,-1,   1, 1, 1,   1, 1,-1,   
@@ -137,14 +243,14 @@ const $ = {
             -1,-1,-1,  1,-1, 1,  -1,-1, 1,
         ])
 
-        if (_gUV) {
-            _g.uvs = _g.uvs.concat([
+        if (flags.UV) {
+            geo.uvs = geo.uvs.concat([
                 1, 0,   1, 1,   0, 1,
                 1, 0,   0, 1,   0, 0,
             ])
             for (let j = 0; j < 12; j++) {
                 for (let i = 0; i < 12; i++) {
-                    _g.uvs.push(_g.uvs[i])
+                    geo.uvs.push(geo.uvs[i])
                 }
             }
         }
@@ -152,7 +258,7 @@ const $ = {
     },
 
     tetrahedron: function() {
-        _g.vertices = _g.vertices.concat([
+        geo.vertices = geo.vertices.concat([
             -1, 1,-1,   -1,-1, 1,   1, 1, 1,
              1, 1, 1,    1,-1,-1,  -1, 1,-1, 
             -1,-1, 1,    1,-1,-1,   1, 1, 1,
@@ -164,13 +270,13 @@ const $ = {
     sphere: function() {
         const v = [], w = []
 
-        for (let lat = 0; lat <= _gSpherePrecision; lat++) {
-            let theta = (lat * PI) / _gSpherePrecision,
+        for (let lat = 0; lat <= geoSpherePrecision; lat++) {
+            let theta = (lat * PI) / geoSpherePrecision,
                 cost = cos(theta),
                 sint = sin(theta)
 
-            for (let lon = 0; lon < _gSpherePrecision; lon++) {
-                let phi = (lon * PI2) / _gSpherePrecision,
+            for (let lon = 0; lon < geoSpherePrecision; lon++) {
+                let phi = (lon * PI2) / geoSpherePrecision,
                     cosp = cos(phi),
                     sinp = sin(phi)
                     v.push(
@@ -181,12 +287,12 @@ const $ = {
             }
         }
 
-        for (let lat = 0; lat < _gSpherePrecision; lat++) {
-            for (let lon = 0; lon < _gSpherePrecision; lon++) {
+        for (let lat = 0; lat < geoSpherePrecision; lat++) {
+            for (let lon = 0; lon < geoSpherePrecision; lon++) {
                 
-                let base = lat * _gSpherePrecision
-                    base2 = ((lat + 1)) * _gSpherePrecision
-                    nextLon = (lon + 1) % _gSpherePrecision
+                let base = lat * geoSpherePrecision
+                    base2 = ((lat + 1)) * geoSpherePrecision
+                    nextLon = (lon + 1) % geoSpherePrecision
                     at = (base + lon) * 3,
                     at2 = (base + nextLon) * 3
                     at3 = (base2 + lon) * 3
@@ -204,24 +310,24 @@ const $ = {
             }
         }
 
-        _g.vertices = _g.vertices.concat(w)
+        geo.vertices = geo.vertices.concat(w)
         return this
     },
 
     cylinder() {
         const v = [], w = []
 
-        for (let lon = 0; lon < _gSpherePrecision; lon++) {
-            let phi = (lon * PI2) / _gSpherePrecision,
+        for (let lon = 0; lon < geoSpherePrecision; lon++) {
+            let phi = (lon * PI2) / geoSpherePrecision,
                 c = cos(phi),
                 s = sin(phi)
             v.push(c, 1, s)
         }
 
-        for (let lon = 0; lon < _gSpherePrecision; lon++) {
+        for (let lon = 0; lon < geoSpherePrecision; lon++) {
 
                 let at = lon * 3,
-                    at2 = ((lon + 1) % _gSpherePrecision) * 3
+                    at2 = ((lon + 1) % geoSpherePrecision) * 3
 
                 w.push(
                     v[at],   1,  v[at+2],
@@ -242,24 +348,24 @@ const $ = {
                 )
         }
 
-        _g.vertices = _g.vertices.concat(w)
+        geo.vertices = geo.vertices.concat(w)
         return this
     },
     
     cone() {
         const v = [], w = []
 
-        for (let lon = 0; lon < _gSpherePrecision; lon++) {
-            let phi = (lon * PI2) / _gSpherePrecision,
+        for (let lon = 0; lon < geoSpherePrecision; lon++) {
+            let phi = (lon * PI2) / geoSpherePrecision,
                 c = cos(phi),
                 s = sin(phi)
             v.push(c, 1, s)
         }
 
-        for (let lon = 0; lon < _gSpherePrecision; lon++) {
+        for (let lon = 0; lon < geoSpherePrecision; lon++) {
 
                 let at = lon * 3,
-                    at2 = ((lon + 1) % _gSpherePrecision) * 3
+                    at2 = ((lon + 1) % geoSpherePrecision) * 3
 
                 w.push(
                     0,  1,  0,
@@ -272,23 +378,23 @@ const $ = {
                 )
         }
 
-        _g.vertices = _g.vertices.concat(w)
+        geo.vertices = geo.vertices.concat(w)
         return this
     },
 
     circle: function() {
         const v = [], w = []
 
-        for (let lon = 0; lon < _gSpherePrecision; lon++) {
-            let phi = (lon * PI2) / _gSpherePrecision,
+        for (let lon = 0; lon < geoSpherePrecision; lon++) {
+            let phi = (lon * PI2) / geoSpherePrecision,
                 c = cos(phi),
                 s = sin(phi)
             v.push(c, 1, s)
         }
 
-        for (let lon = 0; lon < _gSpherePrecision; lon++) {
+        for (let lon = 0; lon < geoSpherePrecision; lon++) {
                 let at = lon * 3,
-                    at2 = ((lon + 1) % _gSpherePrecision) * 3
+                    at2 = ((lon + 1) % geoSpherePrecision) * 3
 
                 w.push(
                     v[at2], 0,  v[at2+2],
@@ -297,24 +403,24 @@ const $ = {
                 )
         }
 
-        _g.vertices = _g.vertices.concat(w)
+        geo.vertices = geo.vertices.concat(w)
         return this
     },
     
     ring() {
         const ir = pop(), v = [], w = []
 
-        for (let lon = 0; lon < _gSpherePrecision; lon++) {
-            let phi = (lon * PI2) / _gSpherePrecision,
+        for (let lon = 0; lon < geoSpherePrecision; lon++) {
+            let phi = (lon * PI2) / geoSpherePrecision,
                 c = cos(phi),
                 s = sin(phi)
             v.push(c, 1, s)
         }
 
-        for (let lon = 0; lon < _gSpherePrecision; lon++) {
+        for (let lon = 0; lon < geoSpherePrecision; lon++) {
 
                 let at = lon * 3,
-                    at2 = ((lon + 1) % _gSpherePrecision) * 3
+                    at2 = ((lon + 1) % geoSpherePrecision) * 3
 
                 w.push(
                     v[at2],    0,  v[at2+2],
@@ -337,37 +443,37 @@ const $ = {
                 )
         }
 
-        _g.vertices = _g.vertices.concat(w)
+        geo.vertices = geo.vertices.concat(w)
         return this
     },
 
     mid: function() {
-        _gMatrix = mat4.identity()
+        geoMatrix = mat4.identity()
         return this
     },
 
     mscale: function() {
-        mat4.scale(_gMatrix, popV3())
+        mat4.scale(geoMatrix, popV3())
         return this
     },
 
     mtranslate: function() {
-        mat4.translate(_gMatrix, popV3())
+        mat4.translate(geoMatrix, popV3())
         return this
     },
 
     mrotX: function() {
-        mat4.rotX(_gMatrix, pop())
+        mat4.rotX(geoMatrix, pop())
         return this
     },
 
     mrotY: function() {
-        mat4.rotY(_gMatrix, pop())
+        mat4.rotY(geoMatrix, pop())
         return this
     },
 
     mrotZ: function() {
-        mat.rotZ(_gMatrix, pop())
+        mat.rotZ(geoMatrix, pop())
         return this
     },
 
@@ -409,60 +515,60 @@ const $ = {
     },
 
     name: function(n) {
-        _g.name = n || pop()
+        geo.name = n || pop()
         return this
     },
 
     brew: function() {
         // normalize
-        _g.vertices = new Float32Array(_g.vertices)
-        _g.vertCount = _g.vertices.length / 3
+        geo.vertices = new Float32Array(geo.vertices)
+        geo.vertCount = geo.vertices.length / 3
 
         // wireframe points
-        _g.wires = []
-        for (let i = 0; i < _g.vertices.length; i += 9) {
-            let v1 = vec3.fromArray(_g.vertices, i),
-                v2 = vec3.fromArray(_g.vertices, i+3),
-                v3 = vec3.fromArray(_g.vertices, i+6)
-            vec3.push(_g.wires, v1).push(_g.wires, v2)
-                .push(_g.wires, v2).push(_g.wires, v3)
-                .push(_g.wires, v3).push(_g.wires, v1)
+        geo.wires = []
+        for (let i = 0; i < geo.vertices.length; i += 9) {
+            let v1 = vec3.fromArray(geo.vertices, i),
+                v2 = vec3.fromArray(geo.vertices, i+3),
+                v3 = vec3.fromArray(geo.vertices, i+6)
+            vec3.push(geo.wires, v1).push(geo.wires, v2)
+                .push(geo.wires, v2).push(geo.wires, v3)
+                .push(geo.wires, v3).push(geo.wires, v1)
         }
-        _g.wires = new Float32Array(_g.wires)
+        geo.wires = new Float32Array(geo.wires)
 
-        if (_g.uvs.length > 0) {
-            _g.uvs = new Float32Array(_g.uvs)
+        if (geo.uvs.length > 0) {
+            geo.uvs = new Float32Array(geo.uvs)
         } else {
-            _g.uvs = null
-        }
-
-        if (_g.colors.length > 0) {
-            _g.colors = new Float32Array(_g.colors)
-        } else {
-            _g.colors = null
+            geo.uvs = null
         }
 
-        if (_g.faces.length === 0) {
-            _g.faces = null
+        if (geo.colors.length > 0) {
+            geo.colors = new Float32Array(geo.colors)
         } else {
-            _g.faces = new Uint16Array(_g.faces)
-            _g.facesCount = _g.faces.length
+            geo.colors = null
         }
 
-        if (_g.n.length === 0) {
-            _g.autocalcNormals = true
-            _g.n= new Float32Array( calcNormals(_g.vertices, _gSmooth) ) 
+        if (geo.faces.length === 0) {
+            geo.faces = null
         } else {
-            _g.n= new Float32Array(_g.n) 
+            geo.faces = new Uint16Array(geo.faces)
+            geo.facesCount = geo.faces.length
+        }
+
+        if (geo.normals.length === 0) {
+            geo.autocalcNormals = true
+            geo.normals = new Float32Array( lib.gluten.calcNormals(geo.vertices, flags.smooth) ) 
+        } else {
+            geo.normals = new Float32Array(geo.normals) 
         }
 
         // DEBUG vertex stat
-        if (debug) {
+        if (env.debug) {
             if (!this._vertexCount) this._vertexCount = 0
-            this._vertexCount += _g.vertCount
+            this._vertexCount += geo.vertCount
 
             if (!this._polygonCount) this._polygonCount = 0
-            this._polygonCount += _g.vertCount / 3
+            this._polygonCount += geo.vertCount / 3
 
             if (!this._geoCount) this._geoCount = 0
             this._geoCount ++
@@ -470,32 +576,33 @@ const $ = {
             env.dump['Geometry Library'] = `${this._geoCount} (${this._polygonCount} polygons)`
         }
 
-        gix.push(_g)
-        if (_g.name) glib[_g.name] = _g
+        lib.geo.cur = geo
+        lib.geo.gix.push(geo)
+        if (geo.name) lib.geo.glib[geo.name] = geo
         return this
     },
 
     bake: function() {
         this.brew()
-        return _g
+        return geo
     },
 
     last: function() {
-        return _g
+        return geo
     },
 
     bakeWires: function() {
-        _g.wires = new Float32Array(_g.vertices)
-        _g.wires.vertCount = _g.vertices.length / 3
-        delete _g.vertices
-        return _g
+        geo.wires = new Float32Array(geo.vertices)
+        geo.wires.vertCount = geo.vertices.length / 3
+        delete geo.vertices
+        return geo
     },
 
     dump: function() {
         const b = []
 
         b.push('=== matrix ===\n')
-        _gMatrix.forEach((v, i) => {
+        geoMatrix.forEach((v, i) => {
             b.push(v)
             b.push('  ')
             if (i % 4 === 3) b.push('\n')
@@ -510,7 +617,7 @@ const $ = {
         })
 
         console.dir(stack)
-        console.dir(_gMatrix)
+        console.dir(geoMatrix)
         const d = b.join('')
         console.log(d)
         term.println('\n' + d)
@@ -520,7 +627,7 @@ const $ = {
         const b = []
 
         b.push('\n=== verteces ===\n')
-        _g.vertices.forEach((v, i) => {
+        geo.vertices.forEach((v, i) => {
             b.push(v)
             b.push('  ')
             if (i % 9 === 8) b.push('\n')
@@ -528,12 +635,11 @@ const $ = {
         })
 
         const d = b.join('')
-        console.dir(_g.vertices)
+        console.dir(geo.vertices)
         console.log(d)
         term.println('\n' + d)
     },
 }
-
 return $
 
 })()

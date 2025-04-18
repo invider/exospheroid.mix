@@ -1,32 +1,6 @@
 // === 3D vector ops ===
 
 /*
-vec3.fromArray = (buf, i) => {
-    return vec3(
-        buf[i],
-        buf[i+1],
-        buf[i+2],
-    )
-}
-
-vec3.push = function(buf, v) {
-    buf.push(v[0], v[1], v[2])
-}
-
-function _iadd(v, w, f) {
-    return vec3(
-        v[0] + f*w[0],
-        v[1] + f*w[1],
-        v[2] + f*w[2]
-    )
-}
-vec3.isub = (v, w) => {
-    return _iadd(v, w, -1)
-}
-
-vec3.iadd = (v, w) => {
-    return _iadd(v, w, 1)
-}
 
 vec3.scad = function(v, w, s) {
     v[0] += w[0] * s

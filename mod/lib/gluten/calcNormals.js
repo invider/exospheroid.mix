@@ -22,10 +22,10 @@ function calcNormals(v, smooth) {
     }
 
     function avgNormal(nlist) {
-        const v = vec3(0, 0, 0)
+        const v = vec3.izero()
         nlist.forEach(w => vec3.add(v, w))
         vec3.scale(v, 1/nlist.length)
-        vec3.n(v)
+        vec3.normalize(v, v)
         return v
     }
 
@@ -36,7 +36,7 @@ function calcNormals(v, smooth) {
             v3 = vec3.fromArray(v, i + 6),
             v12 = vec3.isub(v1, v2),
             v13 = vec3.isub(v1, v3),
-            nv = vec3.n( vec3.icross(v12, v13) )
+            nv = vec3.tnormalize( vec3.icross(v12, v13) )
 
         /*
         if (smooth) {
