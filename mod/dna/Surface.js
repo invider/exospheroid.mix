@@ -1,10 +1,13 @@
 // Surface combines the geometry mesh data and materials to create
 // a renderable surface
+
+let id = 0
+
 class Surface {
 
     constructor(st) {
         extend(this, {
-            name: 'surface',
+            name: 'surface' + (++id),
             rO: vec4(1, 0, 0, 0), // render options
             buf: {},
         }, st)
@@ -42,6 +45,8 @@ class Surface {
     }
 
     draw() {
+        const uloc = gl.curProg.uloc,
+              aloc = gl.curProg.aloc
         // adjust to the world coordinates
 
         // set current model matrix

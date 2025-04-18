@@ -3,31 +3,13 @@ class Viewport extends sys.LabFrame {
     constructor(st) {
         super( augment({
             name: 'port',
+            cam:   null,
         }, st) )
-
-        this.cam = null
-
-        this.modelPtr = 0
-        this.modelStack = []
-
-        this.modelMat4    = mat4.identity()
-        this.worldMat4    = mat4.identity()
-        this.normalMat4   = mat4.identity()
-        this.inversedMat4 = mat4.identity()
     }
 
     bindCamera(cam) {
         if (!(cam instanceof dna.Camera)) throw new Error(`Wrong camera entity - it is supposed to be an instance of dna.Camera!`)
         this.cam = cam
-    }
-
-    mpush() {
-        if (!this.modelStack[this.modelPtr]) this.modelStack[this.modelPtr++] = mat4.clone(this.modelMat4)
-        else mat4.copy(this.modelStack[this.modelPtr++], this.modelMat4)
-    }
-
-    mpop() {
-        mat4.copy(this.modelMat4, this.modelStack[--this.modelPtr])
     }
 
     setupDraw() {
@@ -43,7 +25,8 @@ class Viewport extends sys.LabFrame {
               uloc = gl.curProg.uloc
 
         // set the model matrix to identity
-        mat4.copy(this.modelMat4, this.inversedMat4)
+        // mat4.copy(this.modelMat4, this.inversedMat4)
+        glu.setIdentity()
 
         // setup up the view and projection transformations
         // TODO merge view and projection into the pv matrix and get it from the camera
@@ -68,16 +51,15 @@ class Viewport extends sys.LabFrame {
     }
 
     draw() {
-        if (!this.cam || !gl.curProg) return
+        if (!gl.curProg || !this.cam) return
 
         this.setupDraw()
 
         // TODO move out to a debug node?
-        //if (debug) {
-        //    env.stat.lastPolygons = env.stat.polygons
-        //    env.stat.polygons = 0
-        //}
-        // prepare the framebuffer and the drawing context
+        if (env.debug) {
+            env.stat.lastPolygons = env.stat.polygons
+            env.stat.polygons = 0
+        }
         if (env.backfaces) {
             gl.disable(gl.CULL_FACE)
         } else {

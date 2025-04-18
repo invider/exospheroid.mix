@@ -4,7 +4,7 @@ function newMat4() {
 
 // turn a zero 4D matrix into an identity one
 // @param {array/mat4} - a zero 4D matrix to set identity to
-function setMat4Identity(m) {
+function setMat4ZIdentity(m) {
     m[0]  = 1
     m[5]  = 1
     m[10] = 1
@@ -12,10 +12,9 @@ function setMat4Identity(m) {
     return m
 }
 
-
 function identity() {
     const m = newMat4()
-    setMat4Identity(m)
+    setMat4ZIdentity(m)
     return m
 }
 
@@ -46,6 +45,17 @@ function from4V3(v1, v2, v3, v4) {
     m[15] = 1
     return m
 }
+
+function setIdentity(m) {
+    m[0] = 0
+    m[1] = m[2] = m[3] = m[4] = 0
+    m[5] = 1
+    m[6] = m[7] = m[8] = m[9] = 0
+    m[10] = 1
+    m[11] = m[12] = m[13] = m[14] = 0
+    m[15] = 1
+}
+
 
 // generates a perspective projection 4x4 matrix
 //
@@ -281,6 +291,7 @@ extend(mat4, {
     clone,
     copy,
     from4V3,
+    setIdentity,
 
     translate: __translate__,
     scale: __scale__,
