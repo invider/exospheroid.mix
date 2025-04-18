@@ -42,4 +42,8 @@ class Shader {
         }
     }
 
+    destruct() {
+        gl.deleteShader(this.glRef)
+    }
+
 }

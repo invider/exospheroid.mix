@@ -1,5 +1,7 @@
 const Z = 0
 
+const hidden = true
+
 function draw() {
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
     gl.clearColor(.2, .2, .2, 1.0)

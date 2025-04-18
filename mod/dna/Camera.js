@@ -1,4 +1,4 @@
-class Camera extends Frame {
+class Camera extends sys.Frame {
 
     constructor(st) {
         const df = {
@@ -6,7 +6,7 @@ class Camera extends Frame {
             zNear: 1,
             zFar:  512,
         }
-        st._traits = augment(st._traits, [ attitudeTrait ])
+        st._traits = augment(st._traits, [ dna.pod.attitudeTrait ])
         super( extend(df, st) )
     }
 

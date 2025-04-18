@@ -26,7 +26,7 @@ function clone(im) {
 }
 
 function copy(rv, im) {
-    for (let i = 0; i < 16; i++) rm[i] = im[i]
+    for (let i = 0; i < 16; i++) rv[i] = im[i]
 }
 
 function from4V3(v1, v2, v3, v4) {

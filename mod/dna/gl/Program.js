@@ -5,6 +5,8 @@ class Program {
     constructor(st) {
         augment(this, {
             id: ++id,
+            uloc: {},
+            aloc: {},
         }, st)
 
         this.parse()
@@ -34,12 +36,25 @@ class Program {
 
         if (!vShader) throw `[${this.id}:${this.name}] Can't find vertex shader @[${this.vertexPath}]`
         if (!(vShader instanceof dna.gl.Shader) || vShader.TYPE !== 'vertex') {
+            console.dir(vShader)
             throw `Wrong Shader! Expecting a vertex shader @[${this.vertexPath}]`
         }
         if (!fShader) throw `[${this.id}:${this.name}] Can't find fragment shader @[${this.fragmentPath}]`
         if (!(fShader instanceof dna.gl.Shader) || fShader.TYPE !== 'fragment') {
+            console.dir(fShader)
             throw `Wrong Shader! Expecting a fragment shader @[${this.vertexPath}]`
         }
+    }
+
+    bindLocations(shader) {
+        if (!shader.defs) return
+
+        shader.defs.uniforms.forEach(uniform => {
+            this.uloc[uniform] = gl.getUniformLocation(this.glRef, uniform)
+        })
+        shader.defs.attributes.forEach(attribute => {
+            this.aloc[attribute] = gl.getAttribLocation(this.glRef, attribute)
+        })
     }
 
     link() {
@@ -56,11 +71,20 @@ class Program {
             throw new Error(`[${this.id}:${this.name}] unable to link the program: ${glLog}`)
         }
 
+        this.bindLocations(this.vShader)
+        this.bindLocations(this.fShader)
+
         // won't work with multiple programs!
         this.use()
     }
 
     use() {
         lib.glu.useProgram(this)
+    }
+
+    destruct() {
+        gl.detachShader(this.fShader.glRef)
+        gl.detachShader(this.vShader.glRef)
+        gl.deleteProgram(this.glRef)
     }
 }
