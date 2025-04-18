@@ -4,7 +4,7 @@
 // uModelMatrix
 // uNormalMatrix
 // uViewMatrix
-// uPerspectiveMatrix
+// uProjectionMatrix
 // >>> end <<<
 
 // >>> attributes <<<
@@ -18,7 +18,7 @@
  * m - model matrix
  * n - normal matrix (derived from the model one)
  * v - view matrix
- * p - perspective matrix
+ * p - projection matrix
  *
  * vp - vertex position
  * vn - vertex normal
@@ -32,7 +32,7 @@
  * fd - fog depth
  */
 
-uniform mat4 uModelMatrix, uNormalMatrix, uViewMatrix, uPerspectiveMatrix;
+uniform mat4 uModelMatrix, uNormalMatrix, uViewMatrix, uProjectionMatrix;
 
 in vec3 aVertPos, aVertNorm, aVertColor;
 in vec2 aVertUV;
@@ -49,5 +49,5 @@ void main(void) {
     vVertUV = aVertUV;                                         // interpolate UV coordinates
     vFogDepth = -(uViewMatrix * uModelMatrix * vertPos4).z;    // calculate fog distance
 
-    gl_Position = uPerspectiveMatrix * uViewMatrix * uModelMatrix * vertPos4;
+    gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vertPos4;
 }

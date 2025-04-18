@@ -1,4 +1,7 @@
-class Camera extends sys.Frame {
+
+const EntityFrame = require('dna/EntityFrame')
+
+class Camera extends EntityFrame {
 
     constructor(st) {
         const df = {
@@ -6,14 +9,15 @@ class Camera extends sys.Frame {
             zNear: 1,
             zFar:  512,
         }
+        if (!st._traits) st._traits = []
         st._traits = augment(st._traits, [ dna.pod.attitudeTrait ])
         super( extend(df, st) )
     }
 
     projectionMatrix() {
-        const aspect = gc.width / gc.height
+        const aspect = gl.canvas.width / gl.canvas.height
         this.hfov = (2 * Math.atan(aspect * Math.tan((this.vfov * DEG_TO_RAD)/2))) * RAD_TO_DEG
-        return mat4.projection(this.vfov, gc.width/gc.height, this.zNear, this.zFar)
+        return mat4.projection(this.vfov, gl.canvas.width/gl.canvas.height, this.zNear, this.zFar)
     }
 
     viewMatrix() {
@@ -29,8 +33,8 @@ class Camera extends sys.Frame {
             this.up   = mat4.extractV3(m, 1)
             this.dir  = mat4.extractV3(m, 2)
         } else {
-            vec3.n( this.up )
-            vec3.n( this.dir )
+            vec3.normalize( this.up, this.up )
+            vec3.normalize( this.dir, this.dir )
             this.left = vec3.n( vec3.icross(this.up, this.dir) ),
 
             m = mat4.from4V3( this.left, this.up, this.dir, this.pos )
