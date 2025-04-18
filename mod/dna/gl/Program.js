@@ -79,7 +79,7 @@ class Program {
     }
 
     use() {
-        lib.glu.useProgram(this)
+        lib.glut.useProgram(this)
     }
 
     destruct() {

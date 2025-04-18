@@ -1,14 +1,5 @@
 const attitudeTrait = {
 
-    __onTrait: function() {
-        extend(this, {
-            pos:   vec3(),
-            dir:   vec3(0, 0, 1),
-            up:    vec3(0, 1, 0),
-            left:  vec3(1, 0, 0),
-        })
-    },
-
     moveX: function(span) {
         const mv = vec3.clone(this.left)
         vec3.scale(mv, span)
@@ -49,5 +40,14 @@ const attitudeTrait = {
         this.left = mat4.extractV3(rm, 0)
         this.up = mat4.extractV3(rm, 1)
         this.dir = vec3.n( vec3.icross(this.left, this.up) )
-    }
+    },
+
+    onExtend: function() {
+        extend(this, {
+            pos:   vec3(),
+            dir:   vec3(0, 0, 1),
+            up:    vec3(0, 1, 0),
+            left:  vec3(1, 0, 0),
+        })
+    },
 }

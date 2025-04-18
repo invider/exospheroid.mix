@@ -1,14 +1,13 @@
-class EntityFrame extends sys.Frame {
+class EntityFrame extends sys.LabFrame {
 
     constructor(st) {
         super(st)
 
-        const $ = this
+        const _ = this
         // install trails if present
-        console.dir(st._traits)
         if (st && st._traits) st._traits.forEach(trait => {
-            extend($, trait)
-            if (trait.__onTrait) trait.__onTrait.call($)
+            extend(_, trait, p => p !== 'name' && p !== 'onExtend' && !p.startsWith('_'))
+            //if (trait.__onTrait) trait.__onTrait.call(_))
         })
 
     }

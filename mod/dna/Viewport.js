@@ -1,9 +1,11 @@
-class Viewport extends sys.Frame {
+class Viewport extends sys.LabFrame {
 
     constructor(st) {
         super( augment({
             name: 'port',
         }, st) )
+
+        this.cam = null
 
         this.modelPtr = 0
         this.modelStack = []
@@ -12,6 +14,11 @@ class Viewport extends sys.Frame {
         this.worldMat4    = mat4.identity()
         this.normalMat4   = mat4.identity()
         this.inversedMat4 = mat4.identity()
+    }
+
+    bindCamera(cam) {
+        if (!(cam instanceof dna.Camera)) throw new Error(`Wrong camera entity - it is supposed to be an instance of dna.Camera!`)
+        this.cam = cam
     }
 
     mpush() {
@@ -32,7 +39,7 @@ class Viewport extends sys.Frame {
     }
 
     setUniforms() {
-        const cam = this.__.cam,
+        const cam = this.cam,
               uloc = gl.curProg.uloc
 
         // set the model matrix to identity
@@ -45,23 +52,23 @@ class Viewport extends sys.Frame {
         gl.uniform3fv(uloc.uCamPos, cam.pos)
 
         // TODO precalc in _dirLight buffer and use that instead?
-        const rnv = vec3.clone(env.aura.dirLightVec)
-        vec3.scale(rnv, -1)
-        vec3.normalize(rnv, rnv)
+        const nDirLightVec = vec3.clone(env.aura.dirLightVec)
+        vec3.scale(nDirLightVec, nDirLightVec, -1)
+        vec3.normalize(nDirLightVec, nDirLightVec)
 
-        gl.uniform3fv(uloc.uDirLightVec,   rnv)
+        gl.uniform3fv(uloc.uDirLightVec,   nDirLightVec)
         gl.uniform4fv(uloc.uDirLightColor, env.aura.dirLightColor)
 
         // set point light uniforms
-        gl.uniform3fv(_a.upl, env.aura.pointLights)
-        gl.uniform4fv(_a.upc, env.aura.pointLightColors)
+        gl.uniform3fv(uloc.uPointLights, env.aura.pointLights)
+        gl.uniform4fv(uloc.uPointLightColors, env.aura.pointLightColors)
 
         // tune - fog color
-        gl.uniform4fv(_a.uF, rgba('1d0722FF'))
+        gl.uniform4fv(uloc.uFogDepth, vec4.rgba('#1d0722FF'))
     }
 
     draw() {
-        if (!this.__.cam || !gl.curProg) return
+        if (!this.cam || !gl.curProg) return
 
         this.setupDraw()
 
@@ -82,5 +89,9 @@ class Viewport extends sys.Frame {
 
         // draw the scene graph
         super.draw()
+    }
+
+    unbindCamera() {
+        this.cam = null
     }
 }

@@ -35,7 +35,7 @@ class Camera extends EntityFrame {
         } else {
             vec3.normalize( this.up, this.up )
             vec3.normalize( this.dir, this.dir )
-            this.left = vec3.n( vec3.icross(this.up, this.dir) ),
+            this.left = vec3.inormalize( vec3.icross(this.up, this.dir) ),
 
             m = mat4.from4V3( this.left, this.up, this.dir, this.pos )
             //m = mat4.identity() // DEBUG use identity in case something goes wrong

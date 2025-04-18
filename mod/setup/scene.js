@@ -1,8 +1,9 @@
 function scene() {
-    lab.spawn( dna.Camera, {
+    lab.port.spawn( dna.Camera, {
         Z:     13,
         name: 'cam',
     })
+    lab.port.bindCamera(lab.port.cam)
 
     /*
     lab.spawn(dna.geo.Image, {
