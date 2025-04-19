@@ -72,14 +72,41 @@ function scene() {
 
     //lab.spawn(dna.geo.debug.Squarization)
     lab.spawn(dna.geo.debug.Background)
+
+    /*
     lab.spawn(dna.geo.debug.Plane, {
-        Z: 101,
+        Z:         101,
+        rot:       vec3.izero(),
+        rSpeed:    vec3(.2 * PI, .3 * PI, .1 * PI),
 
         evo: function(dt) {
-            const s = .25 + .5 * (env.time * .5 % 1)
-            this.orig().scale(s).bindBuffer()
+            const { rot, rSpeed } = this
+            rot[0] += rSpeed[0] * dt
+            rot[1] += rSpeed[1] * dt
+            rot[2] += rSpeed[2] * dt
+            const s = .25
+            this.orig().scale(s).rotX(rot[0]).rotY(rot[1]).rotZ(rot[2]).bindBuffer()
         }
     })
+    */
+
+    lab.spawn(dna.geo.debug.PointSprite, {
+        Z:   102,
+        pos: vec3(0, 0, 0),
+
+        postInit: function() {
+            this.orig().translate(.5, 0, 0).bindBuffer()
+        },
+
+        evo: function(dt) {
+            const p = this.pos
+            p[0] += 0.2 * dt
+            p[1] += 0.1 * dt
+            p[2] += 0.5 * dt
+            this.orig().translate(p[0], p[1], p[2]).bindBuffer()
+        },
+    })
+
     /*
     lab.spawn(dna.geo.Image, {
         Z: 102,

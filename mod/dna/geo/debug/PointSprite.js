@@ -1,50 +1,35 @@
 
 let id = 0
 
-
-class Plane extends dna.EntityFrame {
+class PointSprite extends dna.EntityFrame {
 
     constructor(st) {
         if (!st._traits) st._traits = []
         st._traits = augment(st._traits, [ dna.geo.debug.trait.verticeTransformUtilsTrait ])
 
         super( extend({
-            name: 'plane' + (++id),
-            scale: 4,
+            name: 'pointSprite' + (++id),
+            color: vec3(1, 0, 1),
         }, st) )
     }
 
     init() {
         // select the buffer to apply operations to
         this.origVertices = new Float32Array([
-            // left triangle
-            -1,  1,  0,
-             1,  1,  0,
-            -1, -1,  0,
-
-            // right triangle
-             1,  1,  0,
-            -1, -1,  0,
-             1, -1,  0
+             0,  0,  0,
         ])
         this.orig()
-
-        this.colors = new Float32Array([
-            1, 0, 0,
-            0, 1, 0,
-            0, 0, 1,
-
-            0, 1, 1,
-            1, 0, 1,
-            1, 1, 0,
-        ])
+        this.colors = new Float32Array(this.color)
 
         this.posBufRef = gl.createBuffer()
         this.bindBuffer()
 
+        const [minSize, maxSize] = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)
         this.colorBufRef = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBufRef)
         gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+
+        if (this.postInit) this.postInit()
     }
 
     bindBuffer() {
@@ -68,7 +53,6 @@ class Plane extends dna.EntityFrame {
         gl.vertexAttribPointer( gl.getAttribLocation(gl.curProg.glRef, 'aVertColor'), 3, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray( gl.getAttribLocation(gl.curProg.glRef, 'aVertColor') )
 
-        gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length / 3)
+        gl.drawArrays(gl.POINTS, 0, this.vertices.length / 3)
     }
-
 }

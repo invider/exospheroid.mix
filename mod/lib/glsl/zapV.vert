@@ -33,4 +33,5 @@ void main(void) {
     //gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vertPos4;
     //gl_Position = uModelMatrix * vertPos4;
     gl_Position = vertPos4;
+    gl_PointSize = 20.0;
 }
