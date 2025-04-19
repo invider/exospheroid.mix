@@ -70,6 +70,7 @@ function scene() {
     })
     */
 
-    lab.spawn(dna.geo.debug.Squarization)
+    //lab.spawn(dna.geo.debug.Squarization)
+    lab.spawn(dna.geo.debug.Background)
 }
 scene.Z = 101
