@@ -62,7 +62,7 @@ function scene() {
     /*
     lab.spawn(dna.geo.Image, {
         Z: 101,
-        glProg: lib.gl.zprog.basic,
+        glProg: lib.glsl.zprog.basic,
 
         fixTexture: function() {
             return res.texture.compass.glRef
@@ -72,5 +72,23 @@ function scene() {
 
     //lab.spawn(dna.geo.debug.Squarization)
     lab.spawn(dna.geo.debug.Background)
+    lab.spawn(dna.geo.debug.Plane, {
+        Z: 101,
+
+        evo: function(dt) {
+            const s = .25 + .5 * (env.time * .5 % 1)
+            this.orig().scale(s).bindBuffer()
+        }
+    })
+    /*
+    lab.spawn(dna.geo.Image, {
+        Z: 102,
+        glProg: lib.glsl.zprog.basic,
+
+        fixTexture: function() {
+            return res.texture.compass.glRef
+        },
+    })
+    */
 }
 scene.Z = 101

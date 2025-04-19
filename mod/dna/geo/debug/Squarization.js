@@ -29,9 +29,8 @@ class Squarization {
     }
 
     box(b) {
-        const c = b.c
         gl.scissor(b.x, b.y, b.w, b.h);
-        gl.clearColor(c[0], c[1], c[2], c[3])
+        gl.clearColor(...b.c)
         gl.clear(gl.COLOR_BUFFER_BIT)
     }
 

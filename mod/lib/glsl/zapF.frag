@@ -110,5 +110,5 @@ void main(void) {
         fA
     );
     */
-    outColor = vec4(1.0, 1.0, 1.0, 1.0);
+    outColor = vec4(.5, .6, .7, 1.0);
 }

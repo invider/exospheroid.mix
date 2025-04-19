@@ -9,9 +9,14 @@ class Background {
     }
 
     draw() {
-        const c = this.color
-        gl.clearColor(c[0], c[1], c[2], c[3])
-        gl.clear(gl.COLOR_BUFFER_BIT)
+        lib.glut.useProgram(lib.glsl.zprog.zap)
+
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+        gl.clearColor(...this.color)
+        gl.disable(gl.CULL_FACE)
+        gl.disable(gl.SCISSOR_TEST);
+        gl.clearDepth(1.0)
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     }
 
 }

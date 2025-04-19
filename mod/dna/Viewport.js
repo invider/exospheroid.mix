@@ -4,6 +4,8 @@ class Viewport extends sys.LabFrame {
         super( augment({
             name: 'port',
             cam:   null,
+
+            hidden: true,
         }, st) )
     }
 

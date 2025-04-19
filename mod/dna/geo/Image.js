@@ -1,7 +1,7 @@
-class Image {
+class Image extends dna.EntityFrame {
 
     constructor(st) {
-        augment(this, {
+        super( augment({
             Z:        5,
             scale:    1,
             vertices: [
@@ -21,7 +21,7 @@ class Image {
                 // 2
                 1.0, 0.0, 0.0, 1.0, 1.0, 1.0,
             ],
-        }, st)
+        }, st) )
     }
 
     init() {
