@@ -108,6 +108,7 @@ const $ = {
             colors:   [],
             uvs:      [],
 
+            BUFFERS: ['vertices', 'normals', 'colors', 'uvs'],
             /*
             v: [],
             n: [],
@@ -514,7 +515,7 @@ const $ = {
         return this
     },
 
-    name: function(n) {
+    label: function(n) {
         geo.name = n || pop()
         return this
     },

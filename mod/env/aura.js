@@ -8,7 +8,7 @@ const aura = {
     pointLights:      [],
     pointLightColors: [],
 
-    backfaces: 0,
+    backfaces:        1,
 }
 
 // pre-init light arrays

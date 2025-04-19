@@ -1,21 +1,19 @@
-class Form extends sys.LabFrame {
+const EntityFrame = require('dna/EntityFrame')
+
+class Form extends EntityFrame {
 
     constructor(st) {
         super( extend({
-            pos:   vec3z(),
-            rot:   vec3z(),
-            scale: vec3(1, 1, 1)
+            pos:   vec3.izero(),
+            rot:   vec3.izero(),
+            scale: vec3(1, 1, 1),
         }, st))
     }
 
     draw() {
         glu.pushMatrix()
+        glu.translate(this.pos).rot(this.rot).scale(this.scale)
 
-        mat4
-            .translate( mMatrix, this.pos)
-            .rot(       mMatrix, this.rot)
-            .scale(     mMatrix, this.scale)
-        
         super.draw()
 
         glu.popMatrix()

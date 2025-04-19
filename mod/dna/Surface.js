@@ -25,8 +25,8 @@ class Surface {
                 return b
             }
         }
-        for (let b of this.geo.B) {
-            this.buf[b] = cb(this.geo[b])
+        for (let bname of this.geo.BUFFERS) {
+            this.buf[bname] = cb(this.geo[bname])
         }
         //this.buf.v = this.createBuffer(this.geo.v)
         //this.buf.n = this.createBuffer(this.geo.n)
@@ -38,7 +38,7 @@ class Surface {
 
     bindAttribute(buf, name, n) {
         if (!buf) return
-        const _attr = gl.getAttribLocation(glP, name)
+        const _attr = gl.getAttribLocation(gl.curProg.glRef, name)
         gl.enableVertexAttribArray(_attr)
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
         gl.vertexAttribPointer(_attr, n || 3, gl.FLOAT, false, 0, 0)
@@ -50,39 +50,58 @@ class Surface {
         // adjust to the world coordinates
 
         // set current model matrix
-        gl.uniformMatrix4fv(_a.m, false, mMatrix)
+        gl.uniformMatrix4fv(uloc.uModelMatrix, false, glu.modelMatrix)
 
         // calculate the normal matrix out of the model one (=> invert => transpose)
-        mat4.copy(wMatrix, mMatrix)
-        mat4.invert(wMatrix)
-        mat4.transpose(nMatrix, wMatrix)
-        gl.uniformMatrix4fv(_a.n, false, nMatrix)
+        mat4.copy(glu.invMatrix, glu.modelMatrix)
+        mat4.invert(glu.invMatrix)
+        mat4.transpose(glu.normalMatrix, glu.invMatrix)
+        gl.uniformMatrix4fv(uloc.uNormalMatrix, false, glu.normalMatrix)
 
         // rendering options
         if (this.tex) this.rO[2] = 1
-        gl.uniform4fv(_a.uO, this.rO)
+        gl.uniform4fv(uloc.uOpt, this.rO)
 
         // -------------------------------------
         // bind our geometry and materials
 
+// uDirLightColor
+// uFogColor
+// uPointLightColors
+// uMatAmbient
+// uMatDiffuse
+// uMatSpecular
+// uCamPos
+// uDirLightVec
+// uPointLights
+//
+// uSpecularExponent
+//
+// uTexture
+//
         // set the material
-        gl.uniform4fv(_a.ua, this.m.a)
-        gl.uniform4fv(_a.ud, this.m.d)
-        gl.uniform4fv(_a.us, this.m.s)
-        gl.uniform1f(_a.un, this.m.n)
+        gl.uniform4fv( uloc.uMatAmbient,       this.m.a )
+        gl.uniform4fv( uloc.uMatDiffuse,       this.m.d )
+        gl.uniform4fv( uloc.uMatSpecular,      this.m.s )
+        gl.uniform1f ( uloc.uSpecularExponent, this.m.n )
 
         if (this.tex) {
             // bind texture
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.tex);
-            gl.uniform1i(_a.uT, 0);
+            gl.uniform1i(uloc.uTexture, 0);
         }
 
+        // aVertPos
+        // aVertNorm
+        // aVertColor
+        // aVertUV
+
         // set the shader attributes 
-        this.bindAttribute(this.buf.v, 'vp')
-        this.bindAttribute(this.buf.n, 'vn')
-        this.bindAttribute(this.buf.c, 'vc')
-        this.bindAttribute(this.buf.u, 'uv', 2)
+        this.bindAttribute(this.buf.vertices, 'aVertPos'  )
+        this.bindAttribute(this.buf.normals,  'aVertNorm' )
+        this.bindAttribute(this.buf.colors,   'aVertColor')
+        this.bindAttribute(this.buf.uvs,      'aVertUV',    2)
 
         //if (this.rO[1]) {
             // render wireframes
@@ -98,7 +117,7 @@ class Surface {
 
             //if (debug) env.stat.polygons += this.geo.fc / 3
         //} else {
-            gl.drawArrays(gl.TRIANGLES, 0, this.geo.vc)
+            gl.drawArrays(gl.TRIANGLES, 0, this.geo.vertices)
             //if (debug) env.stat.polygons += this.geo.vc / 3
         //}
     }

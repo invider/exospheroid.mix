@@ -2,29 +2,50 @@ let context = {
     ptr:         0,
     matrixStack: [],
 
-    modelMat4:    mat4.identity(),
     //worldMat4:    mat4.identity(),
     //normalMat4:   mat4.identity(),
 }
 
-function init() {
-    extend($.alt.glu, this, p => !p.startsWith('_') && p !== 'name' && p !== 'init')
-}
+module.exports = {
 
-function pushMatrix() {
-    if (!context.matrixStack[context.ptr]) this.matrixStack[this.ptr++] = mat4.clone(context.modelMat4)
-    else mat4.copy(this.matrixStack[context.ptr++], context.modelMat4)
-}
+    modelMatrix:  mat4.identity(),
+    invMatrix:    mat4.identity(),
+    normalMatrix: mat4.identity(),
 
-function popMatrix() {
-    if (context.ptr === 0) throw new Error(`The GLU matrix stack is empty!`)
-    mat4.copy(context.modelMat4, context.matrixStack[--context.ptr])
-}
+    init: function() {
+        extend($.alt.glu, this, p => !p.startsWith('_') && p !== 'name' && p !== 'init')
+    },
 
-function setIdentity() {
-    mat4.setIdentity(context.modelMat4)
-}
+    pushMatrix: function() {
+        if (!context.matrixStack[context.ptr]) context.matrixStack[context.ptr++] = mat4.clone(this.modelMatrix)
+        else mat4.copy(context.matrixStack[context.ptr++], this.modelMatrix)
+    },
 
-function getContext() {
-    return context
+    popMatrix: function () {
+        if (context.ptr === 0) throw new Error(`The GLU matrix stack is empty!`)
+        mat4.copy(this.modelMatrix, context.matrixStack[--context.ptr])
+    },
+
+    setIdentity: function () {
+        mat4.setIdentity(this.modelMatrix)
+    },
+
+    translate: function (pos) {
+        mat4.translate( this.modelMatrix, pos )
+        return this
+    },
+
+    rot: function(rv) {
+        mat4.rot( this.modelMatrix, rv )
+        return this
+    },
+
+    scale: function(sv) {
+        mat4.scale( this.modelMatrix, sv )
+        return this
+    },
+
+    getContext: function() {
+        return context
+    },
 }

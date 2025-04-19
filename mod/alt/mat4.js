@@ -12,6 +12,17 @@ function setMat4ZIdentity(m) {
     return m
 }
 
+// generate buffer matrices used to speed up calculations
+const tempM4 = []
+for (let i = 0; i < 8; i++) tempM4[i] = setMat4ZIdentity(newMat4())
+const tsm4 = tempM4[0], // for scaling
+      ttm4 = tempM4[1], // for translation
+      txm4 = tempM4[2], // for x-axis rotation
+      tym4 = tempM4[3], // for y-axis rotation
+      tzm4 = tempM4[4], // for z-axis rotation
+      trm4 = tempM4[5]  // for zyx rotation
+
+
 function identity() {
     const m = newMat4()
     setMat4ZIdentity(m)
@@ -209,7 +220,7 @@ function mul(a, b) {
 // invert a 4x4 matrix
 // @param {array/mat4} t - the source and receiving 4D matrix 
 function invert(t) {
-    const m = this.clone(t)
+    const m = clone(t)
     const
         A2323 = m[2*4 + 2] * m[3*4 + 3] - m[2*4 + 3] * m[3*4 + 2],
         A1323 = m[2*4 + 1] * m[3*4 + 3] - m[2*4 + 3] * m[3*4 + 1],
@@ -230,12 +241,14 @@ function invert(t) {
         A0113 = m[1*4 + 0] * m[3*4 + 1] - m[1*4 + 1] * m[3*4 + 0],
         A0112 = m[1*4 + 0] * m[2*4 + 1] - m[1*4 + 1] * m[2*4 + 0]
 
-    const idet = 1 / (
+    const det = (
           m[0*4 + 0] * ( m[1*4 + 1] * A2323 - m[1*4 + 2] * A1323 + m[1*4 + 3] * A1223 )
         - m[0*4 + 1] * ( m[1*4 + 0] * A2323 - m[1*4 + 2] * A0323 + m[1*4 + 3] * A0223 )
         + m[0*4 + 2] * ( m[1*4 + 0] * A1323 - m[1*4 + 1] * A0323 + m[1*4 + 3] * A0123 )
         - m[0*4 + 3] * ( m[1*4 + 0] * A1223 - m[1*4 + 1] * A0223 + m[1*4 + 2] * A0123 )
     )
+    if (!det) return
+    const idet = 1 / det
 
     t[0*4 + 0] = idet *   ( m[1*4 + 1] * A2323 - m[1*4 + 2] * A1323 + m[1*4 + 3] * A1223 )
     t[0*4 + 1] = idet * - ( m[0*4 + 1] * A2323 - m[0*4 + 2] * A1323 + m[0*4 + 3] * A1223 )
