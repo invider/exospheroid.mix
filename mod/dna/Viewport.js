@@ -13,6 +13,7 @@ class Viewport extends sys.LabFrame {
     }
 
     setupDraw() {
+        lib.glut.useProgram(lib.glsl.zprog.zap)
         gl.clearColor(.11, .02, .13, 1)
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
         gl.enable(gl.DEPTH_TEST)
@@ -30,9 +31,12 @@ class Viewport extends sys.LabFrame {
 
         // setup up the view and projection transformations
         // TODO merge view and projection into the pv matrix and get it from the camera
-        gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, cam.projectionMatrix())
-        gl.uniformMatrix4fv(uloc.uViewMatrix, false, cam.viewMatrix())
-        gl.uniform3fv(uloc.uCamPos, cam.pos)
+        //gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, cam.projectionMatrix())
+        //gl.uniformMatrix4fv(uloc.uViewMatrix, false, cam.viewMatrix())
+        //gl.uniform3fv(uloc.uCamPos, cam.pos)
+        gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, mat4.identity())
+        gl.uniformMatrix4fv(uloc.uViewMatrix, false, mat4.identity())
+        gl.uniform3fv(uloc.uCamPos, vec3.izero())
 
         // TODO precalc in _dirLight buffer and use that instead?
         const nDirLightVec = vec3.clone(env.aura.dirLightVec)
@@ -60,12 +64,16 @@ class Viewport extends sys.LabFrame {
             env.stat.lastPolygons = env.stat.polygons
             env.stat.polygons = 0
         }
+
+        gl.disable(gl.CULL_FACE)
+        /*
         if (env.backfaces) {
             gl.disable(gl.CULL_FACE)
         } else {
             gl.enable(gl.CULL_FACE)
             gl.cullFace(gl.BACK)
         }
+        */
 
         this.setUniforms()
 

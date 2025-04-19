@@ -20,24 +20,6 @@
 //
 // >>> end <<<
 
-/*
- * m - model matrix
- * n - normal matrix (derived from the model one)
- * v - view matrix
- * p - perspective matrix
- *
- * vp - vertex position
- * vn - vertex normal
- * vc - vertex color
- * uv - vertex UV coordinates
- *
- * wp - world position
- * wn - world normal
- * wc - varying vertex color
- * uw - varying vertex UV coordinates
- * fd - fog depth
- */
-
 precision highp float;
 
 // environment
@@ -54,7 +36,7 @@ in vec3 vWorldPos, vWorldNormal, vVertColor;
 in vec2 vVertUV;
 in float vFogDepth;
 
-out vec4 oc;
+out vec4 outColor;
 
 void main(void) {
     vec3 WN = normalize(vWorldNormal);
@@ -114,15 +96,19 @@ void main(void) {
     // hardcoded fog values
     float fA = smoothstep(30.0, 140.0, vFogDepth); // fog amount
 
-    oc = mix(
-            vec4(
+    /*
+    outColor = mix(
+        vec4(
                 // shaded component
                 uMatAmbient.xyz * uMatAmbient.w
                 + (texture(uTexture, vVertUV).xyz * uOpt.z
                      + uMatDiffuse.xyz * (1.0-uOpt.z)) * dc * uMatDiffuse.w
                 + uMatSpecular.xyz * sc * uMatSpecular.w,
-                1.0) * uOpt.x,               // 1.0 - hardcoded opacity
-            // + vec4(ud.xyz * uOpt.y, 1.0), // wireframe component
-        uFogColor, fA
+            1.0) * uOpt.x                 // 1.0 - hardcoded opacity
+            + vec4(uDirLightVec.xyz * uOpt.y, 1.0), // wireframe component
+        uFogColor,
+        fA
     );
+    */
+    outColor = vec4(1.0, 1.0, 1.0, 1.0);
 }

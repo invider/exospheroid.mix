@@ -108,7 +108,7 @@ const $ = {
             colors:   [],
             uvs:      [],
 
-            BUFFERS: ['vertices', 'normals', 'colors', 'uvs'],
+            BUFFERS: ['vertices', 'normals', 'wires', 'colors', 'uvs'],
             /*
             v: [],
             n: [],

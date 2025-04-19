@@ -8,7 +8,8 @@ class Surface {
     constructor(st) {
         extend(this, {
             name: 'surface' + (++id),
-            rO: vec4(1, 0, 0, 0), // render options
+            //renderOpt: vec4(1, 0, 0, 0), // render options
+            renderOpt: vec4(1, 1, 0, 0), // render options
             buf: {},
         }, st)
 
@@ -59,8 +60,9 @@ class Surface {
         gl.uniformMatrix4fv(uloc.uNormalMatrix, false, glu.normalMatrix)
 
         // rendering options
-        if (this.tex) this.rO[2] = 1
-        gl.uniform4fv(uloc.uOpt, this.rO)
+        if (this.tex) this.renderOpt[2] = 1
+        else this.renderOpt[2] = 0
+        gl.uniform4fv(uloc.uOpt, this.renderOpt)
 
         // -------------------------------------
         // bind our geometry and materials
@@ -103,22 +105,22 @@ class Surface {
         this.bindAttribute(this.buf.colors,   'aVertColor')
         this.bindAttribute(this.buf.uvs,      'aVertUV',    2)
 
-        //if (this.rO[1]) {
+        if (this.renderOpt[1]) {
             // render wireframes
-            //gl.lineWidth(2)
-            //this.bindAttribute(this.buf.w, 'vp')
-            //gl.drawArrays(gl.LINES, 0, this.geo.w.length / 3) 
-        //} else if (this.buf.faces) {
+            gl.lineWidth(2)
+            this.bindAttribute(this.buf.wires, 'aVertPos')
+            gl.drawArrays(gl.LINES, 0, this.geo.wires.length / 3) 
+        } else if (this.buf.faces) {
             // TODO can't support multiple indexes at once,
             //      so obj models MUST be repacked to be index by a sinlge index array
             //      and multiple data buffers
-        //    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buf.faces)
-        //    gl.drawElements(gl.TRIANGLES, this.geo.fc, gl.UNSIGNED_SHORT, 0)
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buf.faces)
+            gl.drawElements(gl.TRIANGLES, this.geo.faces, gl.UNSIGNED_SHORT, 0)
 
-            //if (debug) env.stat.polygons += this.geo.fc / 3
-        //} else {
+            if (env.debug) env.stat.polygons += this.geo.fc / 3
+        } else {
             gl.drawArrays(gl.TRIANGLES, 0, this.geo.vertices)
-            //if (debug) env.stat.polygons += this.geo.vc / 3
-        //}
+            if (env.debug) env.stat.polygons += this.geo.vc / 3
+        }
     }
 }
