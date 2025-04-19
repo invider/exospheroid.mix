@@ -6,7 +6,7 @@ class Camera extends EntityFrame {
     constructor(st) {
         const df = {
             vfov: 30,
-            zNear: 1,
+            zNear: .1,
             zFar:  512,
         }
         if (!st._traits) st._traits = []

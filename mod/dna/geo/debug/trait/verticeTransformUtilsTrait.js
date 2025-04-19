@@ -44,6 +44,11 @@ const verticeTransformUtilsTrait = {
         return this
     },
 
+    translateV3(tv3) {
+        this.applyV3(this.vertices, v3 => vec3.add(v3, v3, tv3))
+        return this
+    },
+
     rotX(theta) {
         this.applyV3(this.vertices, v3 => vec3.rotateX(v3, v3, theta))
         return this

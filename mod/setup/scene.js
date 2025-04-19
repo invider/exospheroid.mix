@@ -1,11 +1,33 @@
 function scene() {
-    /*
     const cam = lab.port.spawn( dna.Camera, {
         Z:     13,
         name: 'cam',
     })
     lab.port.bindCamera(cam)
 
+    const plane = lab.port.spawn(dna.geo.debug.Plane, {
+        Z:         101,
+        pos:       vec3(0, 0, 0),
+        rot:       vec3.izero(),
+        rSpeed:    vec3(.2 * PI, .3 * PI, .1 * PI),
+
+        evo: function(dt) {
+            const { rot, rSpeed } = this
+            rot[0] += rSpeed[0] * dt
+            rot[1] += rSpeed[1] * dt
+            rot[2] += rSpeed[2] * dt
+            this.pos[2] -= .05 * dt
+            const s = .05
+            this.orig().scale(s).rotX(rot[0]).rotY(rot[1]).rotZ(rot[2]).translateV3(this.pos).bindBuffer()
+
+            pin.info.seti('X', this.pos[0])
+            pin.info.seti('Y', this.pos[1])
+            pin.info.seti('Z', this.pos[2])
+        },
+    })
+    plane.evo(0.01)
+
+    /*
     lab.port.attach( new dna.geo.Surface({
         name: 'cube',
         geo: lib.geo.glib.cube,
@@ -71,7 +93,7 @@ function scene() {
     */
 
     //lab.spawn(dna.geo.debug.Squarization)
-    lab.spawn(dna.geo.debug.Background)
+    //lab.spawn(dna.geo.debug.Background)
 
     /*
     lab.spawn(dna.geo.debug.Plane, {
@@ -90,6 +112,7 @@ function scene() {
     })
     */
 
+    /*
     lab.spawn(dna.geo.debug.PointSprite, {
         Z:   102,
         pos: vec3(0, 0, 0),
@@ -106,6 +129,7 @@ function scene() {
             this.orig().translate(p[0], p[1], p[2]).bindBuffer()
         },
     })
+    */
 
     /*
     lab.spawn(dna.geo.Image, {
