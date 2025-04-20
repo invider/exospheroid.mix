@@ -20,6 +20,13 @@ const style = {
             size:    24,
         },
     },
+    
+    color: {
+        title: {
+            front: '#7645ce',
+            back:  '#252030',
+        }
+    },
 }
 
 function classifyFonts() {

@@ -38,12 +38,12 @@ class Viewport extends sys.LabFrame {
         // setup up the view and projection transformations
         // TODO merge view and projection into the pv matrix and get it from the camera
         gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, cam.projectionMatrix())
-        //gl.uniformMatrix4fv(uloc.uViewMatrix, false, cam.viewMatrix())
-        //gl.uniform3fv(uloc.uCamPos, cam.pos)
+        gl.uniformMatrix4fv(uloc.uViewMatrix, false, cam.viewMatrix())
+        gl.uniform3fv(uloc.uCamPos, cam.pos)
         //gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, mat4.identity())
-        gl.uniformMatrix4fv(uloc.uViewMatrix, false, mat4.identity())
-        gl.uniformMatrix4fv(uloc.uModelMatrix, false, mat4.identity())
-        gl.uniform3fv(uloc.uCamPos, vec3.izero())
+        //gl.uniformMatrix4fv(uloc.uViewMatrix, false, mat4.identity())
+        //gl.uniformMatrix4fv(uloc.uModelMatrix, false, mat4.identity())
+        //gl.uniform3fv(uloc.uCamPos, vec3.izero())
 
         // TODO precalc in _dirLight buffer and use that instead?
         const nDirLightVec = vec3.clone(env.aura.dirLightVec)

@@ -64,7 +64,16 @@ class Camera extends EntityFrame {
         return m
     }
 
-    /*
+    evo(dt) {
+        if (env.debug) {
+            pin.info.set('Cam',
+                  'pos:' + lib.dump.vec3(this.pos, 1)
+                + ' at:' + lib.dump.vec3(this.dir, 1)
+                + ' up:' + lib.dump.vec3(this.up, 1)
+            )
+        }
+    }
+
     pick() {
         // calculate the proper ray vector
         const cdir = vec3.clone(this.dir)
@@ -79,6 +88,5 @@ class Camera extends EntityFrame {
             }
         }, [])
     }
-    */
 
 }

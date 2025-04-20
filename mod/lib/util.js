@@ -5,3 +5,4 @@ function captureMouse() {
         $.glCanvas.requestPointerLock()
     }, t * 2.5)
 }
+

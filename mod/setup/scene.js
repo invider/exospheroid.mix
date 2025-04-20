@@ -22,9 +22,7 @@ function scene() {
             this.pos[2] -= this.speed * dt
             this.orig().scale(this.size).rotX(rot[0]).rotY(rot[1]).rotZ(rot[2]).translateV3(this.pos).bindBuffer()
 
-            pin.info.seti('X', this.pos[0])
-            pin.info.seti('Y', this.pos[1])
-            pin.info.seti('Z', this.pos[2])
+            pin.info.set('Plane Pos', lib.dump.vec3(this.pos, 2))
         },
     })
     plane.evo(0.01)
