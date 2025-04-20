@@ -67,24 +67,41 @@ function setIdentity(m) {
     m[15] = 1
 }
 
+function frustum(rm, left, right, bottom, top, near, far) {
+    const irl = 1 / (right - left),
+          itb = 1 / (top - bottom),
+          inf = 1 / (near - far)
 
-// generates a perspective projection 4x4 matrix
-//
-// @param {number/degrees} fovy - the vertical field of view
-// @param {number} aspectRate - the viewport width-to-height aspect ratio
-// @param {number} zNear - the z coordinate of the near clipping plane
-// @param {number} zFar - the z coordinate of the far clipping plane
-function iperspective2(fovy, aspectRate, zNear, zFar) {
-    const m = newMat4(),
-          tan = Math.tan(.5 * fovy * DEG_TO_RAD),
-          frustum = zNear - zFar
-    m[0]  = .5 / tan
-    m[5]  = (.5 * aspectRate) / tan
-    m[10] = -(zFar + zNear) / (zFar - zNear)
-    m[11] = (-2 * zFar * zNear)/(zFar - zNear)
-    m[14] = -1
+    rm[0]  = 2 * near * irl
+    rm[1]  = rm[2] = rm[3] = rm[4] = 0
+    rm[5]  = 2 * near * itb
+    rm[6]  = rm[7] = 0
+    rm[8]  = (right + left) * irl
+    rm[9]  = (top + bottom) * itb
+    rm[10] = (near + far) * inf
+    rm[11] = -1
+    rm[12] = rm[13] = 0
+    rm[14] = 2 * near * far * inf
+    rm[15] = 0
 
-    return m
+    return rm
+}
+
+function ifrustum(left, right, bottom, top, near, far) {
+    const nm = newMat4(),
+          irl = 1 / (right - left),
+          itb = 1 / (top - bottom),
+          inf = 1 / (near - far)
+
+    nm[0]  = 2 * near * irl
+    nm[5]  = 2 * near * itb
+    nm[8]  = (right + left) * irl
+    nm[9]  = (top + bottom) * itb
+    nm[10] = (near + far) * inf
+    nm[11] = -1
+    nm[14] = 2 * near * far * inf
+
+    return nm
 }
 
 // generates a perspective projection 4x4 matrix
@@ -93,14 +110,72 @@ function iperspective2(fovy, aspectRate, zNear, zFar) {
 // @param {number} aspectRate - the viewport width-to-height aspect ratio
 // @param {number} zNear - the z coordinate of the near clipping plane
 // @param {number} zFar - the z coordinate of the far clipping plane
+function perspective(rm, fovy, aspectRate, zNear, zFar) {
+    const f = 1 / Math.tan(.5 * fovy * DEG_TO_RAD)
+
+    rm[0] = f / aspectRate
+    rm[1] = rm[2] = rm[3] = rm[4] = 0
+    rm[5] = f
+    rm[6] = rm[7] = rm[8] = rm[9] = 0
+    if (zFar) {
+        let nf = 1 / (zNear - zFar)
+        rm[10] = (zNear + zFar) * nf
+        rm[11] = -1
+        rm[12] = rm[13] = 0
+        rm[14] = 2 * zFar * zNear * nf
+    } else {
+        rm[10] = -1
+        rm[11] = -1
+        rm[12] = rm[13] = 0
+        rm[14] = -2 * zNear
+    }
+    rm[15] = 0
+
+    return rm
+}
+
+
+// generates a perspective projection 4x4 matrix
+//
+// @param {number/degrees} fovy - the vertical field of view
+// @param {number} aspectRate - the viewport width-to-height aspect ratio
+// @param {number} zNear - the z coordinate of the near clipping plane
+// @param {number} zFar - the z coordinate of the far clipping plane
 function iperspective(fovy, aspectRate, zNear, zFar) {
+    const nm = newMat4(),
+          f = 1 / Math.tan(.5 * fovy * DEG_TO_RAD)
+
+    nm[0] = f / aspectRate
+    nm[5] = f
+    if (zFar) {
+        let nf = 1 / (zNear - zFar)
+        nm[10] = (zNear + zFar) * nf
+        nm[11] = -1
+        nm[14] = 2 * zFar * zNear * nf
+    } else {
+        nm[10] = -1
+        nm[11] = -1
+        nm[14] = -2 * zNear
+    }
+
+    return nm
+}
+
+// generates a perspective projection 4x4 matrix
+//
+// another way to calculate, derived from frustum
+//
+// @param {number/degrees} fovy - the vertical field of view
+// @param {number} aspectRate - the viewport width-to-height aspect ratio
+// @param {number} zNear - the z coordinate of the near clipping plane
+// @param {number} zFar - the z coordinate of the far clipping plane
+function iperspectiveAlt(fovy, aspectRate, zNear, zFar) {
     const m       = newMat4(),
           tan     = Math.tan(.5 * fovy * DEG_TO_RAD),
           top     = zNear * tan,
           bottom  = -zNear * tan,
           left    = top * aspectRate,
           right   = bottom * aspectRate,
-          //frustum = zNear - zFar
           irl = 1 / (right - left),
           itb = 1 / (top - bottom),
           inf = 1 / (zNear - zFar)
@@ -116,23 +191,6 @@ function iperspective(fovy, aspectRate, zNear, zFar) {
     m[10] = (zNear + zFar) * inf
     m[11] = -1
     m[14] = 2 * zNear * zFar * inf
-
-    return m
-}
-
-function ifrustum(left, right, bottom, top, near, far) {
-    const m = newMat4(),
-          irl = 1 / (right - left),
-          itb = 1 / (top - bottom),
-          inf = 1 / (near - far)
-
-    m[0]  = 2 * near * irl
-    m[5]  = 2 * near * itb
-    m[8]  = (right + left) * irl
-    m[9]  = (top + bottom) * itb
-    m[10] = (near + far) * inf
-    m[11] = -1
-    m[14] = 2 * near * far * inf
 
     return m
 }
@@ -393,7 +451,9 @@ extend(mat4, {
 
     invert,
     transpose,
+    frustum,
     ifrustum,
+    perspective,
     iperspective,
     ortho,
     iortho,

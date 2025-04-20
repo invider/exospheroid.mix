@@ -7,11 +7,12 @@ function scene() {
 
     const plane = lab.port.spawn(dna.geo.debug.Plane, {
         Z:         101,
-        size:      3,
+        size:      1,
         pos:       vec3(0, 0, 0),
         speed:     .5,
         rot:       vec3.izero(),
         rSpeed:    vec3(.2 * PI, .3 * PI, .1 * PI),
+        //rSpeed:    vec3.izero(),
 
         evo: function(dt) {
             const { rot, rSpeed } = this
