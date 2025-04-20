@@ -16,3 +16,8 @@ jam play
 jam -d
 ```
 
+To warp directly to space, use --warp flag:
+
+```
+jam -d --warp
+```
