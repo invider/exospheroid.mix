@@ -7,7 +7,9 @@ function scene() {
 
     const plane = lab.port.spawn(dna.geo.debug.Plane, {
         Z:         101,
+        size:      3,
         pos:       vec3(0, 0, 0),
+        speed:     .5,
         rot:       vec3.izero(),
         rSpeed:    vec3(.2 * PI, .3 * PI, .1 * PI),
 
@@ -16,9 +18,8 @@ function scene() {
             rot[0] += rSpeed[0] * dt
             rot[1] += rSpeed[1] * dt
             rot[2] += rSpeed[2] * dt
-            this.pos[2] -= .05 * dt
-            const s = .05
-            this.orig().scale(s).rotX(rot[0]).rotY(rot[1]).rotZ(rot[2]).translateV3(this.pos).bindBuffer()
+            this.pos[2] -= this.speed * dt
+            this.orig().scale(this.size).rotX(rot[0]).rotY(rot[1]).rotZ(rot[2]).translateV3(this.pos).bindBuffer()
 
             pin.info.seti('X', this.pos[0])
             pin.info.seti('Y', this.pos[1])

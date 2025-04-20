@@ -5,9 +5,9 @@ class Camera extends EntityFrame {
 
     constructor(st) {
         const df = {
-            vfov: 30,
-            zNear: .1,
-            zFar:  512,
+            vfov:  30,
+            zNear: 1,
+            zFar:  20,
         }
         if (!st._traits) st._traits = []
         st._traits = augment(st._traits, [ dna.pod.attitudeTrait ])
@@ -16,8 +16,26 @@ class Camera extends EntityFrame {
 
     projectionMatrix() {
         const aspect = gl.canvas.width / gl.canvas.height
-        this.hfov = (2 * Math.atan(aspect * Math.tan((this.vfov * DEG_TO_RAD)/2))) * RAD_TO_DEG
-        return mat4.projection(this.vfov, gl.canvas.width/gl.canvas.height, this.zNear, this.zFar)
+        this.hfov = (2 * Math.atan(aspect * Math.tan((this.vfov * DEG_TO_RAD) * .5))) * RAD_TO_DEG
+        return mat4.iperspective(this.vfov, gl.canvas.width/gl.canvas.height, this.zNear, this.zFar)
+
+        /*
+        // set the frustum
+        const w = 10,
+              h = w / aspect,
+              hw = .5 * w,
+              hh = .5 * h
+        return mat4.ifrustum(-hw, hw, -hh, hh, this.zNear, this.zFar)
+        */
+
+        /*
+        // ortho projection
+        const w = 10,
+              h = w / aspect,
+              hw = .5 * w,
+              hh = .5 * h
+        return mat4.iortho(-hw, hw, -hh, hh, -this.zNear, -this.zFar)
+        */
     }
 
     viewMatrix() {

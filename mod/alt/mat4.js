@@ -74,16 +74,93 @@ function setIdentity(m) {
 // @param {number} aspectRate - the viewport width-to-height aspect ratio
 // @param {number} zNear - the z coordinate of the near clipping plane
 // @param {number} zFar - the z coordinate of the far clipping plane
-function projection(fovy, aspectRate, zNear, zFar) {
-    const m = newMat4()
-    const tan = Math.tan(fovy * DEG_TO_RAD * .5)
-    m[0]  = .5/tan
-    m[5]  = .5 * aspectRate/tan
+function iperspective2(fovy, aspectRate, zNear, zFar) {
+    const m = newMat4(),
+          tan = Math.tan(.5 * fovy * DEG_TO_RAD),
+          frustum = zNear - zFar
+    m[0]  = .5 / tan
+    m[5]  = (.5 * aspectRate) / tan
     m[10] = -(zFar + zNear) / (zFar - zNear)
     m[11] = (-2 * zFar * zNear)/(zFar - zNear)
     m[14] = -1
 
     return m
+}
+
+// generates a perspective projection 4x4 matrix
+//
+// @param {number/degrees} fovy - the vertical field of view
+// @param {number} aspectRate - the viewport width-to-height aspect ratio
+// @param {number} zNear - the z coordinate of the near clipping plane
+// @param {number} zFar - the z coordinate of the far clipping plane
+function iperspective(fovy, aspectRate, zNear, zFar) {
+    const m       = newMat4(),
+          tan     = Math.tan(.5 * fovy * DEG_TO_RAD),
+          top     = zNear * tan,
+          bottom  = -zNear * tan,
+          left    = top * aspectRate,
+          right   = bottom * aspectRate,
+          //frustum = zNear - zFar
+          irl = 1 / (right - left),
+          itb = 1 / (top - bottom),
+          inf = 1 / (zNear - zFar)
+    //m[0]  = .5 / tan
+    //m[5]  = (.5 * aspectRate) / tan
+    //m[10] = -(zFar + zNear) / (zFar - zNear)
+    //m[11] = (-2 * zFar * zNear)/(zFar - zNear)
+    //m[14] = -1
+    m[0]  = 2 * zNear * irl
+    m[5]  = 2 * zNear * itb
+    m[8]  = (right + left) * irl
+    m[9]  = (top + bottom) * itb
+    m[10] = (zNear + zFar) * inf
+    m[11] = -1
+    m[14] = 2 * zNear * zFar * inf
+
+    return m
+}
+
+function ifrustum(left, right, bottom, top, near, far) {
+    const m = newMat4(),
+          irl = 1 / (right - left),
+          itb = 1 / (top - bottom),
+          inf = 1 / (near - far)
+
+    m[0]  = 2 * near * irl
+    m[5]  = 2 * near * itb
+    m[8]  = (right + left) * irl
+    m[9]  = (top + bottom) * itb
+    m[10] = (near + far) * inf
+    m[11] = -1
+    m[14] = 2 * near * far * inf
+
+    return m
+}
+
+function ortho(rm, left, right, bottom, top, near, far) {
+    const ilr = 1 / (left - right),
+          ibt = 1 / (bottom - top),
+          inf = 1 / (near - far)
+
+    rm[0]  = -2 * ilr
+    rm[1]  = rm[2] = rm[3] = rm[4] = 0
+    rm[5]  = -2 * ibt
+    rm[6]  = rm[7] = rm[8] = rm[9] = 0
+    rm[10] = -2 * inf
+    rm[11] = 0
+    rm[12] = (left + right) * ilr
+    rm[13] = (bottom + top) * ibt
+    rm[14] = (near + far) * inf
+    rm[15] = 1
+
+    return this
+}
+
+function iortho(left, right, bottom, top, near, far) {
+    const m4 = newMat4()
+    ortho(m4, left, right, bottom, top, near, far)
+
+    return m4
 }
 
 // generates camera look at matrix
@@ -316,7 +393,10 @@ extend(mat4, {
 
     invert,
     transpose,
-    projection,
+    ifrustum,
+    iperspective,
+    ortho,
+    iortho,
     lookAt,
 
     equals,
