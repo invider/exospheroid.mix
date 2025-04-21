@@ -1,3 +1,7 @@
+/*
+ * Captures keyboard and mouse controls and allows 6-degree of freedom node movement.
+ *
+ */
 class FreeMovementControllerPod {
 
     constructor(st) {
@@ -5,6 +9,9 @@ class FreeMovementControllerPod {
             name:      'controller',
             speed:     20,
             turnSpeed: 1,
+            mouseCaptureMask: 4,
+            moveOnClick: true,
+            mouseMoveMask: 7,
         }, st)
 
         this.pushers = new Float32Array(32)
@@ -104,15 +111,15 @@ class FreeMovementControllerPod {
     }
 
     onMouseDown(e) {
-        if (e.button == 0) {
-            if (!env.mouseLock) lib.util.captureMouse()
+        if (this.mouseCaptureMask && !env.mouseLock) {
+            if (e.buttons & this.mouseCaptureMask) lib.util.captureMouse()
         }
     }
 
     onMouseUp(e) {}
 
     onMouseMove(e) {
-        if (!env.mouseLock) return
+        if (!this.moveOnClick || !(e.buttons & this.mouseMoveMask)) return
 
         const dx = e.movementX, dy = e.movementY
 

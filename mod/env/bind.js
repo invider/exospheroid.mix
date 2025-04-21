@@ -25,15 +25,25 @@ let bind
 // list of action names
 const actions = [
     '',
-    'FORWARD',
+    'FORWARD',        // 1
     'STRAFE_LEFT',
     'BACKWARD',
     'STRAFE_RIGHT',
-    'LOOK_UP',
+    'FLY_UP',
+    'FLY_DOWN',
+
+    'LOOK_UP',        // 7
     'LOOK_LEFT',
     'LOOK_DOWN',
     'LOOK_RIGHT',
-    'JUMP',
+
+    'ROLL_LEFT',      // 11
+    'ROLL_RIGHT',
+
+    'ACT',            // 13
+    'SELECT',
+    'CANCEL',
+    'DONE',           // 16
 ]
 
 // globally fixed keys with no remap
@@ -68,15 +78,26 @@ const fixed = {
 const keyboardControllersMapping = [
     // quaker
     [ 'KeyW', 'KeyA', 'KeyS', 'KeyD',
-        'ArrowUp',     // 5  - look up
-        'ArrowLeft',   // 6  - turn left
-        'ArrowDown',   // 7  - look down
-        'ArrowRight',  // 8  - turn right
+        'Home',        // fly up
+        'End',         // fly down
 
-        'PageUp',      // 9  - roll left
-        'PageDown',    // 10 - roll right
+        'ArrowUp',     // look up
+        'ArrowLeft',   // turn left
+        'ArrowDown',   // look down
+        'ArrowRight',  // turn right
 
-        'Space',       // jump or select
+        'KeyQ',        // roll left
+        'KeyE',        // roll right
+
+        'Space',       // act
+        'ShiftLeft',   // select
+        'KeyX',        // cancel
+        'Enter',       // done
+
+        '!ALT', '', '', '', '',
+        'Home', 'End',        // alt fly up/down
+        '', '', '', '',
+        'PageUp', 'PageDown', // alt roll left/right
     ],
 ]
 
