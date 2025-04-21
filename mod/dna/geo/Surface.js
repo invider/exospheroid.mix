@@ -8,8 +8,8 @@ class Surface {
     constructor(st) {
         extend(this, {
             name: 'surface' + (++id),
-            //renderOpt: vec4(1, 0, 0, 0), // render options
-            renderOpt: vec4(1, 1, 0, 0), // render options
+            renderOpt: vec4(1, 0, 0, 0), // render options
+            //renderOpt: vec4(1, 1, 0, 0), // render options
             buf: {},
         }, st)
 
@@ -18,16 +18,20 @@ class Surface {
         }
 
         // create buffers
-        let cb = (d) => {
-            if (d) {
-                const b = gl.createBuffer()
-                gl.bindBuffer(gl.ARRAY_BUFFER, b)
-                gl.bufferData(gl.ARRAY_BUFFER, d, gl.STATIC_DRAW)
-                return b
+        function createBuffer(data, type) {
+            if (data) {
+                const buffer = gl.createBuffer()
+                gl.bindBuffer(type, buffer)
+                gl.bufferData(type, data, gl.STATIC_DRAW)
+                return buffer
             }
+            return null
         }
+
+        // TODO ELEMENT_ARRAY_BUFFERS also must be created in the process
         for (let bname of this.geo.BUFFERS) {
-            this.buf[bname] = cb(this.geo[bname])
+            const type = (bname === 'faces')? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER
+            this.buf[bname] = createBuffer(this.geo[bname], type)
         }
         //this.buf.v = this.createBuffer(this.geo.v)
         //this.buf.n = this.createBuffer(this.geo.n)
@@ -37,12 +41,12 @@ class Surface {
         //this.buf.f = this.createBuffer(this.geo.f, gl.ELEMENT_ARRAY_BUFFER)
     }
 
-    bindAttribute(buf, name, n) {
+    bindAttribute(buf, name, nElements) {
         if (!buf) return
         const _attr = gl.getAttribLocation(gl.curProg.glRef, name)
         gl.enableVertexAttribArray(_attr)
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-        gl.vertexAttribPointer(_attr, n || 3, gl.FLOAT, false, 0, 0)
+        gl.vertexAttribPointer(_attr, nElements || 3, gl.FLOAT, false, 0, 0)
     }
 
     draw() {
@@ -67,20 +71,6 @@ class Surface {
         // -------------------------------------
         // bind our geometry and materials
 
-// uDirLightColor
-// uFogColor
-// uPointLightColors
-// uMatAmbient
-// uMatDiffuse
-// uMatSpecular
-// uCamPos
-// uDirLightVec
-// uPointLights
-//
-// uSpecularExponent
-//
-// uTexture
-//
         // set the material
         gl.uniform4fv( uloc.uMatAmbient,       this.m.a )
         gl.uniform4fv( uloc.uMatDiffuse,       this.m.d )
@@ -94,11 +84,6 @@ class Surface {
             gl.uniform1i(uloc.uTexture, 0);
         }
 
-        // aVertPos
-        // aVertNorm
-        // aVertColor
-        // aVertUV
-
         // set the shader attributes 
         this.bindAttribute(this.buf.vertices, 'aVertPos'  )
         this.bindAttribute(this.buf.normals,  'aVertNorm' )
@@ -107,7 +92,7 @@ class Surface {
 
         if (this.renderOpt[1]) {
             // render wireframes
-            gl.lineWidth(2)
+            gl.lineWidth(4)
             this.bindAttribute(this.buf.wires, 'aVertPos')
             gl.drawArrays(gl.LINES, 0, this.geo.wires.length / 3) 
         } else if (this.buf.faces) {
@@ -115,11 +100,11 @@ class Surface {
             //      so obj models MUST be repacked to be index by a sinlge index array
             //      and multiple data buffers
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.buf.faces)
-            gl.drawElements(gl.TRIANGLES, this.geo.faces, gl.UNSIGNED_SHORT, 0)
+            gl.drawElements(gl.TRIANGLES, this.geo.faceCount, gl.UNSIGNED_SHORT, 0)
 
             if (env.debug) env.stat.polygons += this.geo.fc / 3
         } else {
-            gl.drawArrays(gl.TRIANGLES, 0, this.geo.vertices)
+            gl.drawArrays(gl.TRIANGLES, 0, this.geo.vertCount)
             if (env.debug) env.stat.polygons += this.geo.vc / 3
         }
     }

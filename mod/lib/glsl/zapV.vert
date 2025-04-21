@@ -1,5 +1,11 @@
 #version 300 es
 
+// Below is a special uniform and attributes declarations for Collider.JAM .vert parser
+// Make sure it declares all uniforms and attributes used in the shader.
+// Collider.JAM automatically binds their location.
+//
+// TODO make a GLSL parser to extract that information directly from the shader source.
+//
 // >>> uniforms <<<
 // uModelMatrix
 // uNormalMatrix

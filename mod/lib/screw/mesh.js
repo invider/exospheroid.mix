@@ -88,9 +88,15 @@ function vx(x, y, z) {
 function nx(x, y, z) {
     const v = vec3(x, y, z)
     vec3.mulM4(v, M)
-    g.n.push(v[0])
-    g.n.push(v[1])
-    g.n.push(v[2])
+    geo.normals.push(v[0])
+    geo.normals.push(v[1])
+    geo.normals.push(v[2])
+}
+
+function rgb(r, g, b) {
+    geo.colors.push(r)
+    geo.colors.push(g)
+    geo.colors.push(b)
 }
 
 // pop vec3 from the stack
@@ -195,6 +201,12 @@ const $ = {
         }
         //geo.normals = geo.normals.concat(nv)
         return this
+    },
+
+    colors: function(w) {
+        for (let i = 0; i < w.length; i += 3) {
+            rgb(w[i], w[i+1], w[i+2])
+        }
     },
 
     uvs: function(uw) {

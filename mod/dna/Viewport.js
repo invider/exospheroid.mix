@@ -17,14 +17,15 @@ class Viewport extends sys.LabFrame {
     setupDraw() {
         lib.glut.useProgram(lib.glsl.zprog.zap)
 
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-        gl.clearColor(.11, .02, .13, 1)
-        gl.clearDepth(1.0)
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-
         gl.enable(gl.DEPTH_TEST)
         gl.depthFunc(gl.LEQUAL)
         gl.disable(gl.CULL_FACE)
+        //gl.enable(gl.CULL_FACE)
+
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+        gl.clearDepth(1.0)
+        gl.clearColor(.11, .02, .13, 1)
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     }
 
     setUniforms() {
@@ -39,6 +40,7 @@ class Viewport extends sys.LabFrame {
         // TODO merge view and projection into the pv matrix and get it from the camera
         gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, cam.projectionMatrix())
         gl.uniformMatrix4fv(uloc.uViewMatrix, false, cam.viewMatrix())
+        gl.uniformMatrix4fv(uloc.uModelMatrix, false, glu.modelMatrix)
         gl.uniform3fv(uloc.uCamPos, cam.pos)
         //gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, mat4.identity())
         //gl.uniformMatrix4fv(uloc.uViewMatrix, false, mat4.identity())

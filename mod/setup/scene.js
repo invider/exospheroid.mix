@@ -1,4 +1,5 @@
 function scene() {
+    
     const cam = lab.port.spawn( dna.Camera, {
         Z:     13,
         name: 'cam',
@@ -8,6 +9,7 @@ function scene() {
     })
     lab.port.bindCamera(cam)
 
+    // spawn a running away geometry
     const plane = lab.port.spawn(dna.geo.debug.Plane, {
         Z:         101,
         size:      1,
@@ -44,7 +46,6 @@ function scene() {
     }))
     */
 
-    /*
     lab.port.attach( new dna.geo.Form({
         name: 'cuboid',
         pos: vec3(2, 2, 4),
@@ -78,11 +79,6 @@ function scene() {
             this.rot[2] += this.rotSpeed[2] * dt
         },
     }))
-    */
-
-    // move camera back a little
-    //pin.cam.pos[1] = 1
-    //pin.cam.pos[2] = 8
 
     /*
     lab.spawn(dna.geo.Image, {
@@ -144,5 +140,10 @@ function scene() {
         },
     })
     */
+
+    // move camera back a little
+    pin.cam.pos[1] = 1
+    pin.cam.pos[2] = 8            
+
 }
 scene.Z = 101

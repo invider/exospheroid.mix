@@ -1,5 +1,11 @@
 #version 300 es
 
+// Below is a special uniform declaration for Collider.JAM .frag parser
+// Make sure it declares all uniforms used in the shader.
+// Collider.JAM automatically binds their location.
+//
+// TODO make a GLSL parser to extract that information directly from the shader source.
+//
 // >>> uniforms <<<
 //
 // uOpt
@@ -94,7 +100,8 @@ void main(void) {
     // fog
     float z = gl_FragCoord.z / gl_FragCoord.w;
     // hardcoded fog values
-    float fA = smoothstep(30.0, 140.0, vFogDepth); // fog amount
+    //float fA = smoothstep(30.0, 140.0, vFogDepth); // fog amount
+    float fA = 0.0;
 
     /*
     outColor = mix(
@@ -104,12 +111,13 @@ void main(void) {
                 + (texture(uTexture, vVertUV).xyz * uOpt.z
                      + uMatDiffuse.xyz * (1.0-uOpt.z)) * dc * uMatDiffuse.w
                 + uMatSpecular.xyz * sc * uMatSpecular.w,
-            1.0) * uOpt.x                 // 1.0 - hardcoded opacity
-            + vec4(uDirLightVec.xyz * uOpt.y, 1.0), // wireframe component
+            1.0) * uOpt.x                          // 1.0 - hardcoded opacity
+            + vec4(uDirLightVec.xyz * uOpt.y, 1.0) // wireframe component
+            + vec4(vVertColor * uOpt.w, 1.0),      // plain color component
         uFogColor,
         fA
     );
     */
-    //outColor = vec4(.5, .6, .7, 1.0);
     outColor = vec4(vVertColor, 1.0);
+    //outColor = vec4(.5, .6, .7, 1.0);
 }

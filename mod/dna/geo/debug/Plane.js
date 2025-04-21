@@ -10,6 +10,7 @@ class Plane extends dna.EntityFrame {
 
         super( extend({
             name: 'plane' + (++id),
+            renderOpt: vec4(0, 0, 0, 1), // render options
             scale: 4,
         }, st) )
     }
@@ -19,20 +20,20 @@ class Plane extends dna.EntityFrame {
         this.origVertices = new Float32Array([
             // left triangle
             -1,  1,  0,
-             1,  1,  0,
             -1, -1,  0,
+             1,  1,  0,
 
             // right triangle
              1,  1,  0,
             -1, -1,  0,
-             1, -1,  0
+             1, -1,  0,
         ])
         this.orig()
 
         this.colors = new Float32Array([
             1, 0, 0,
-            0, 1, 0,
             0, 0, 1,
+            0, 1, 0,
 
             0, 1, 1,
             1, 0, 1,
@@ -44,17 +45,20 @@ class Plane extends dna.EntityFrame {
 
         this.colorBufRef = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBufRef)
-        gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.DYNAMIC_DRAW);
     }
 
     bindBuffer() {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.posBufRef)
-        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.DYNAMIC_DRAW);
         return this
     }
 
     draw() {
-        lib.glut.useProgram(lib.glsl.zprog.zap)
+        //lib.glut.useProgram(lib.glsl.zprog.zap)
+        const uloc = gl.curProg.uloc,
+              aloc = gl.curProg.aloc
+        gl.uniform4fv(uloc.uOpt, this.renderOpt)
 
         // setup the rendering pipeline
         gl.enable(gl.DEPTH_TEST); // Enable depth testing

@@ -11,11 +11,11 @@ class Form extends EntityFrame {
     }
 
     draw() {
-        glu.pushMatrix()
-        glu.translate(this.pos).rot(this.rot).scale(this.scale)
+        //glu.pushMatrix()
+        //glu.translate(this.pos).rot(this.rot).scale(this.scale)
 
         super.draw()
 
-        glu.popMatrix()
+        //glu.popMatrix()
     }
 }
