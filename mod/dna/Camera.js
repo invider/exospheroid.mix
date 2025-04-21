@@ -7,11 +7,15 @@ class Camera extends EntityFrame {
         const df = {
             vfov:  30,
             zNear: 1,
-            zFar:  20,
+            zFar:  256,
         }
         if (!st._traits) st._traits = []
         st._traits = augment(st._traits, [ dna.pod.attitudeTrait ])
         super( extend(df, st) )
+    }
+
+    capture() {
+        if (this.controller) this.controller.capture()
     }
 
     projectionMatrix() {
@@ -65,6 +69,8 @@ class Camera extends EntityFrame {
     }
 
     evo(dt) {
+        super.evo(dt)
+
         if (env.debug) {
             pin.info.set('Cam',
                   'pos:' + lib.dump.vec3(this.pos, 1)

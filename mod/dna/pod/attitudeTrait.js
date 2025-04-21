@@ -2,20 +2,20 @@ const attitudeTrait = {
 
     moveX: function(span) {
         const mv = vec3.clone(this.left)
-        vec3.scale(mv, span)
-        vec3.add(this.pos, mv)
+        vec3.scale(mv, mv, span)
+        vec3.add(this.pos, this.pos, mv)
     },
 
     moveY: function(span) {
         const mv = vec3.clone(this.up)
-        vec3.scale(mv, span)
-        vec3.add(this.pos, mv)
+        vec3.scale(mv, mv, span)
+        vec3.add(this.pos, this.pos, mv)
     },
 
     moveZ: function(span) {
         const mv = vec3.clone(this.dir)
-        vec3.scale(mv, span)
-        vec3.add(this.pos, mv)
+        vec3.scale(mv, mv, span)
+        vec3.add(this.pos, this.pos, mv)
     },
 
     yaw: function(theta) {
@@ -23,7 +23,7 @@ const attitudeTrait = {
         mat4.rotX(rm, -theta)
         this.left = mat4.extractV3(rm, 0)
         this.dir = mat4.extractV3(rm, 2)
-        this.up = vec3.n( vec3.icross(this.dir, this.left) )
+        this.up = vec3.inormalize( vec3.icross(this.dir, this.left) )
     },
 
     pitch: function(theta) {
@@ -31,7 +31,7 @@ const attitudeTrait = {
         mat4.rotY(rm, theta)
         this.up = mat4.extractV3(rm, 1)
         this.dir = mat4.extractV3(rm, 2)
-        this.left = vec3.n( vec3.icross(this.up, this.dir) )
+        this.left = vec3.inormalize( vec3.icross(this.up, this.dir) )
     },
 
     roll: function(theta) {
@@ -39,7 +39,7 @@ const attitudeTrait = {
         mat4.rotZ(rm, theta)
         this.left = mat4.extractV3(rm, 0)
         this.up = mat4.extractV3(rm, 1)
-        this.dir = vec3.n( vec3.icross(this.left, this.up) )
+        this.dir = vec3.inormalize( vec3.icross(this.left, this.up) )
     },
 
     onExtend: function() {

@@ -2,6 +2,9 @@ function scene() {
     const cam = lab.port.spawn( dna.Camera, {
         Z:     13,
         name: 'cam',
+        _pods: [
+            new dna.pod.FreeMovementControllerPod(),
+        ],
     })
     lab.port.bindCamera(cam)
 

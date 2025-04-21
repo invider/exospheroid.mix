@@ -413,7 +413,7 @@ function transpose(t, m) {
 
 function extractV3(m, i) {
     i *= 4
-    return vec3(
+    return $.alt.vec3(
         m[i],
         m[i+1],
         m[i+2],
@@ -440,6 +440,8 @@ extend(mat4, {
     copy,
     from4V3,
     setIdentity,
+
+    extractV3,
 
     translate: __translate__,
     scale: __scale__,

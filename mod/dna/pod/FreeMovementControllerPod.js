@@ -1,23 +1,29 @@
-const dfFMCP = {
-    name:      'mover',
-    speed:     20,
-    turnSpeed: 2,
-}
-
 class FreeMovementControllerPod {
 
     constructor(st) {
-        extend(this, dfFMCP, st)
+        extend(this, {
+            name:      'controller',
+            speed:     20,
+            turnSpeed: 1,
+        }, st)
 
-        this.pushers = new Float32Array(SHIFT_ROLL+1)
-    }
-
-    capture() {
-        lab.broker = this
+        this.pushers = new Float32Array(32)
     }
 
     init() {
         this.capture()
+    }
+
+    capture() {
+        lab.monitor.mouseBroker = this
+        lab.monitor.controller.bindAll(this)
+    }
+
+    release() {
+        if (lab.monitor.mouseBroker === this) {
+            lab.monitor.mouseBroker = null
+        }
+        lab.monitor.controller.unbindAll()
     }
 
     push(action, factor, dt) {
@@ -25,51 +31,51 @@ class FreeMovementControllerPod {
         const speed     = this.speed
         const turnSpeed = this.turnSpeed
         switch(action) {
-            case FORWARD:
+            case dry.FORWARD:
                 __.moveZ(-speed * dt)
                 break
-            case STRAFE_LEFT:
+            case dry.STRAFE_LEFT:
                 __.moveX(-speed * dt)
                 break
-            case BACKWARD:
+            case dry.BACKWARD:
                 __.moveZ(speed * dt)
                 break
-            case STRAFE_RIGHT:
+            case dry.STRAFE_RIGHT:
                 __.moveX(speed * dt)
                 break
-            case FLY_UP:
+            case dry.FLY_UP:
                 __.moveY(speed * dt)
                 break
-            case FLY_DOWN:
+            case dry.FLY_DOWN:
                 __.moveY(-speed * dt)
                 break
 
-            case LOOK_LEFT:
+            case dry.LOOK_LEFT:
                 __.yaw(-turnSpeed * dt)
                 break
-            case LOOK_RIGHT:
+            case dry.LOOK_RIGHT:
                 __.yaw(turnSpeed * dt)
                 break
-            case LOOK_UP:
+            case dry.LOOK_UP:
                 __.pitch(-turnSpeed * dt)
                 break
-            case LOOK_DOWN:
+            case dry.LOOK_DOWN:
                 __.pitch(turnSpeed * dt)
                 break
-            case ROLL_LEFT:
+            case dry.ROLL_LEFT:
                 __.roll(turnSpeed * dt)
                 break
-            case ROLL_RIGHT:
+            case dry.ROLL_RIGHT:
                 __.roll(-turnSpeed * dt)
                 break
 
-            case SHIFT_YAW:
+            case dry.SHIFT_YAW:
                 __.yaw(-turnSpeed * factor * dt)
                 break
-            case SHIFT_PITCH:
+            case dry.SHIFT_PITCH:
                 __.pitch(turnSpeed * factor * dt)
                 break
-            case SHIFT_ROLL:
+            case dry.SHIFT_ROLL:
                 __.roll(turnSpeed * factor * dt)
                 break
         }
@@ -81,22 +87,25 @@ class FreeMovementControllerPod {
             const f = this.pushers[i]
             if (f) {
                 this.push(i, f, dt)
-                if (i > 20) this.pushers[i] = 0 // reset the mouse movement accumulation buffers
+                if (i >= dry.SHIFT_YAW) this.pushers[i] = 0 // reset the mouse movement accumulation buffers
             }
         }
     }
 
-    activate(action) {
-        this.pushers[action] = 1
+    actuate(action) {
+        this.pushers[action.id] = 1
     }
 
-    stop(action) {
-        this.pushers[action] = 0
+    act(action) {
+    }
+
+    cutOff(action) {
+        this.pushers[action.id] = 0
     }
 
     onMouseDown(e) {
         if (e.button == 0) {
-            if (!env.mouseLock) captureMouse()
+            if (!env.mouseLock) lib.util.captureMouse()
         }
     }
 
@@ -110,15 +119,15 @@ class FreeMovementControllerPod {
         if (dx) {
             if (e.shiftKey) {
                 // accumulate mouse roll
-                this.pushers[SHIFT_ROLL] += dx * .1
+                this.pushers[dry.SHIFT_ROLL] += dx * .1
             } else {
                 // accumulate horizontal mouse movement
-                this.pushers[SHIFT_YAW] -= dx * .1
+                this.pushers[dry.SHIFT_YAW] -= dx * .1
             }
         }
         if (dy) {
             // accumulate vertical mouse movement
-            this.pushers[SHIFT_PITCH] += dy * 0.075
+            this.pushers[dry.SHIFT_PITCH] += dy * 0.075
         }
     }
 }

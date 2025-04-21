@@ -3,6 +3,7 @@ const MAX_GAMEPADS              = 4
 const GAMEPAD_CONTROLLERS_BASE  = 1 // gamepad controllers usually indexed from 1..4
 const KEYBOARD_CONTROLLERS_BASE = 5 // keyboard controllers are indexed from 5..
 
+/*
 const UP     = 1    // movement
 const LEFT   = 2
 const DOWN   = 3
@@ -17,26 +18,22 @@ const L2     = 11
 const R2     = 12
 const MENU   = 13   // menu
 const START  = 14
+*/
 
 let bind
 
 // list of action names
 const actions = [
     '',
-    'UP',
-    'LEFT',
-    'DOWN',
-    'RIGHT',
-    'A',
-    'B',
-    'X',
-    'Y',
-    'L1',
-    'R1',
-    'L2',
-    'R2',
-    'MENU',
-    'START',
+    'FORWARD',
+    'STRAFE_LEFT',
+    'BACKWARD',
+    'STRAFE_RIGHT',
+    'LOOK_UP',
+    'LOOK_LEFT',
+    'LOOK_DOWN',
+    'LOOK_RIGHT',
+    'JUMP',
 ]
 
 // globally fixed keys with no remap
@@ -71,31 +68,20 @@ const fixed = {
 const keyboardControllersMapping = [
     // quaker
     [ 'KeyW', 'KeyA', 'KeyS', 'KeyD',
-        'KeyV', 'KeyB', 'KeyF', 'KeyG',
-        'Key1', 'Key2', 'Key3', 'Key4',  
-        'KeyR', 'KeyT',                     // menu, select
-        '', '', '', '',                     // alternative mapping
-        'Space', 'AltLeft', 'KeyE', 'KeyQ'
-    ],
-    // arrower
-    [ 'ArrowUp', 'ArrowLeft', 'ArrowDown', 'ArrowRight',
-        'ControlRight', 'ShiftRight', 'End', 'Home',
-        'PageUp', 'PageDown', 'Insert', 'Delete',
-    ],
-    // vimer
-    [ 'KeyK', 'KeyH', 'KeyJ', 'KeyL',
-        'KeyM', 'KeyN', 'KeyY', 'KeyU',
-        '', '', '', '',
-    ],
-    // numpader
-    [
-        'Numpad8', 'Numpad4', 'Numpad2', 'Numpad6',
-        'Numpad0', 'NumpadSubtract', 'NumpadAdd', 'NumpadDivide',
-        'Numpad9', 'Numpad3', 'NumpadDecimal', 'NumpadEnter'
+        'ArrowUp',     // 5  - look up
+        'ArrowLeft',   // 6  - turn left
+        'ArrowDown',   // 7  - look down
+        'ArrowRight',  // 8  - turn right
+
+        'PageUp',      // 9  - roll left
+        'PageDown',    // 10 - roll right
+
+        'Space',       // jump or select
     ],
 ]
 
 const padActionIdMaps = [
+    /*
     {
         // xbox 360 gamepad profile
         axesSensitivity: 0.35,
@@ -128,13 +114,8 @@ const padActionIdMaps = [
         buttonsSensitivity: 0.2, 
         buttons: [A, B, X, Y, L1, R1, L2, R2, MENU, START, 0, 0, UP, DOWN, LEFT, RIGHT],
     },
+    */
 ]
-
-// cheating combos
-const combos = {
-    test:  [UP, UP, DOWN, DOWN],
-    debug: [UP, DOWN, UP, DOWN, A],
-}
 
 function init() {
     bind = this

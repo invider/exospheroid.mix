@@ -9,7 +9,10 @@ function next() {
     if (!this.startedAt) return
 
     this.startedAt = 0
-    lab.control.state.transitTo('space')
+    trap('game/level', {
+        level: 1,
+    })
+    // lab.control.state.transitTo('space')
 }
 
 function evo(dt) {
