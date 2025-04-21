@@ -17,8 +17,8 @@ const dry = {
     DONE:           16,
 
     // mouse controls
-    SHIFT_YAW:      21,
-    SHIFT_PITCH:    22,
-    SHIFT_ROLL:     23,
-    ZOOM_Y:         24,
+    YAW:            21,
+    PITCH:          22,
+    ROLL:           23,
+    ZOOM:           24,
 }

@@ -1,6 +1,5 @@
 /*
  * Captures keyboard and mouse controls and allows 6-degree of freedom node movement.
- *
  */
 class FreeMovementControllerPod {
 
@@ -9,9 +8,12 @@ class FreeMovementControllerPod {
             name:      'controller',
             speed:     20,
             turnSpeed: 1,
-            mouseCaptureMask: 4,
+            mouseCaptureMask: 2,
             moveOnClick: true,
             mouseMoveMask: 7,
+
+            reversePitch: false,
+            reverseYaw:   false,
         }, st)
 
         this.pushers = new Float32Array(32)
@@ -76,13 +78,15 @@ class FreeMovementControllerPod {
                 __.roll(-turnSpeed * dt)
                 break
 
-            case dry.SHIFT_YAW:
-                __.yaw(-turnSpeed * factor * dt)
+            case dry.YAW:
+                if (this.reverseYaw) __.yaw(-turnSpeed * factor * dt)
+                else __.yaw(turnSpeed * factor * dt)
                 break
-            case dry.SHIFT_PITCH:
-                __.pitch(turnSpeed * factor * dt)
+            case dry.PITCH:
+                if (this.reversePitch) __.pitch(-turnSpeed * factor * dt)
+                else __.pitch(turnSpeed * factor * dt)
                 break
-            case dry.SHIFT_ROLL:
+            case dry.ROLL:
                 __.roll(turnSpeed * factor * dt)
                 break
         }
@@ -94,7 +98,7 @@ class FreeMovementControllerPod {
             const f = this.pushers[i]
             if (f) {
                 this.push(i, f, dt)
-                if (i >= dry.SHIFT_YAW) this.pushers[i] = 0 // reset the mouse movement accumulation buffers
+                if (i >= dry.YAW) this.pushers[i] = 0 // reset the mouse movement accumulation buffers
             }
         }
     }
@@ -112,29 +116,45 @@ class FreeMovementControllerPod {
 
     onMouseDown(e) {
         if (this.mouseCaptureMask && !env.mouseLock) {
-            if (e.buttons & this.mouseCaptureMask) lib.util.captureMouse()
+            if (e.buttons & this.mouseCaptureMask) {
+                lib.util.captureMouse()
+            }
         }
     }
 
     onMouseUp(e) {}
 
     onMouseMove(e) {
-        if (!this.moveOnClick || !(e.buttons & this.mouseMoveMask)) return
+        if (this.moveOnClick && !(e.buttons & this.mouseMoveMask)) return
 
         const dx = e.movementX, dy = e.movementY
 
         if (dx) {
             if (e.shiftKey) {
                 // accumulate mouse roll
-                this.pushers[dry.SHIFT_ROLL] += dx * .1
+                this.pushers[dry.ROLL] += dx * .1
             } else {
                 // accumulate horizontal mouse movement
-                this.pushers[dry.SHIFT_YAW] -= dx * .1
+                this.pushers[dry.YAW] -= dx * .1
             }
         }
         if (dy) {
             // accumulate vertical mouse movement
-            this.pushers[dry.SHIFT_PITCH] += dy * 0.075
+            this.pushers[dry.PITCH] += dy * 0.075
         }
+    }
+
+    onPointerLock() {
+        log('LOCK')
+        this.moveOnClick  = false
+        this.reverseYaw   = true
+        this.reversePitch = true
+    }
+
+    onPointerRelease() {
+        log('ON RELEASE')
+        this.moveOnClick  = true
+        this.reverseYaw   = false
+        this.reversePitch = false
     }
 }
