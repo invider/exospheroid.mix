@@ -36,8 +36,8 @@ void main(void) {
     vVertUV = aVertUV;                                         // interpolate UV coordinates
     vFogDepth = -(uViewMatrix * uModelMatrix * vertPos4).z;    // calculate fog distance
 
-    //gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vertPos4;
-    gl_Position = uProjectionMatrix * uViewMatrix * vertPos4;
+    gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * vertPos4;
+    //gl_Position = uProjectionMatrix * uViewMatrix * vertPos4;
     //gl_Position = vertPos4;
     gl_PointSize = 20.0;
 }

@@ -55,7 +55,7 @@ class Surface {
         // adjust to the world coordinates
 
         // set current model matrix
-        gl.uniformMatrix4fv(uloc.uModelMatrix, false, glu.modelMatrix)
+        //gl.uniformMatrix4fv(uloc.uModelMatrix, false, glu.modelMatrix)
 
         // calculate the normal matrix out of the model one (=> invert => transpose)
         mat4.copy(glu.invMatrix, glu.modelMatrix)

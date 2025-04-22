@@ -8,14 +8,17 @@ class Form extends EntityFrame {
             rot:   vec3.izero(),
             scale: vec3(1, 1, 1),
         }, st))
+        
     }
 
     draw() {
-        //glu.pushMatrix()
-        //glu.translate(this.pos).rot(this.rot).scale(this.scale)
+        glu.pushMatrix()
+        glu.translate(this.pos).rot(this.rot).scale(this.scale)
 
+        // since we modified the world position, we MUST update the model matrix uniform
+        gl.uniformMatrix4fv(gl.curProg.uloc.uModelMatrix, false, glu.modelMatrix)
         super.draw()
 
-        //glu.popMatrix()
+        glu.popMatrix()
     }
 }

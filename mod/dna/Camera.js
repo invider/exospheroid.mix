@@ -73,9 +73,9 @@ class Camera extends EntityFrame {
 
         if (env.debug) {
             pin.info.set('Cam',
-                  'pos:' + lib.dump.vec3(this.pos, 1)
-                + ' at:' + lib.dump.vec3(this.dir, 1)
-                + ' up:' + lib.dump.vec3(this.up, 1)
+                  'pos:'  + lib.dump.vec3(this.pos, 1)
+                + ' dir:' + lib.dump.vec3(this.dir, 1)
+                + ' up:'  + lib.dump.vec3(this.up, 1)
             )
         }
     }

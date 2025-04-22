@@ -48,12 +48,28 @@ function scene() {
 
     lab.port.attach( new dna.geo.Form({
         name: 'cuboid',
-        pos: vec3(2, 2, 4),
+        pos: vec3(0, 0, 0),
         rot: vec3(0, 0, 0),
         rotSpeed: vec3(0, 0, 0),
-        scale: vec3(1, 1, 1),
+        scale: vec3(2, 2, 1),
 
         _pods: [
+            {
+                name: 'rotator',
+                evo: function(dt) {
+                    const __ = this.__
+                    __.rot[0] += __.rotSpeed[0] * dt
+                    __.rot[1] += __.rotSpeed[1] * dt
+                    __.rot[2] += __.rotSpeed[2] * dt
+                },
+            },
+            {
+                name: 'mover',
+                evo: function(dt) {
+                    const __ = this.__
+                    __.pos[1] += .25 * dt
+                },
+            },
             new dna.geo.Surface({
                 name: 'cube',
                 geo: lib.geo.glib.cube,
@@ -71,12 +87,6 @@ function scene() {
             this.rotSpeed[0] = .5
             this.rotSpeed[1] = .3
             this.rotSpeed[2] = .2
-        },
-
-        evo: function(dt) {
-            this.rot[0] += this.rotSpeed[0] * dt
-            this.rot[1] += this.rotSpeed[1] * dt
-            this.rot[2] += this.rotSpeed[2] * dt
         },
     }))
 
@@ -142,8 +152,9 @@ function scene() {
     */
 
     // move camera back a little
-    pin.cam.pos[1] = 1
-    pin.cam.pos[2] = 8            
+    pin.cam.pos[1] = 4
+    pin.cam.pos[2] = 16
+    pin.cam.dir[1] = .2
 
 }
 scene.Z = 101
