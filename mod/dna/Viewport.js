@@ -16,7 +16,7 @@ class Viewport extends sys.LabFrame {
 
     setupDraw() {
         //lib.glut.useProgram(lib.glsl.zprog.zap)
-        glu.withProgram(lib.glsl.zprog.zap)
+        glu.withProgram(lib.glsl.zprog.flat)
 
         gl.enable(gl.DEPTH_TEST)
         gl.depthFunc(gl.LEQUAL)

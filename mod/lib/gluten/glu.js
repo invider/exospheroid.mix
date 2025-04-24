@@ -1,9 +1,6 @@
 let context = {
     ptr:         0,
     matrixStack: [],
-
-    //worldMat4:    mat4.identity(),
-    //normalMat4:   mat4.identity(),
 }
 
 const __glu__ = {
@@ -18,18 +15,60 @@ const __glu__ = {
     init: function() {
         // migrate in the global scope and detach,
         // since we don't want to use it from here by mistake
+        // We MUST declare functions here and not on /alt to have vector and matrix math available in scope
         extend($.alt.glu, this, p => !p.startsWith('_') && p !== 'name' && p !== 'init')
-        //this.__.detach(this)
+        this.__.detach(this)
     },
 
     withProgram: function(gluProg) {
         if (this.gluProg === gluProg) return
+
+        // TODO detect and save the previous one
 
         gl.useProgram(gluProg.glRef)
         this.prog   = gluProg
         this.uloc   = gluProg.uloc
         this.aloc   = gluProg.aloc
         this.glProg = gluProg.glRef
+    },
+
+    uniform1i: function(uniLoc, iv) {
+        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (!uniLoc) return
+        gl.uniform1i(uniLoc, iv)
+    },
+
+    uniform1f: function(uniLoc, fv) {
+        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (!uniLoc) return
+        gl.uniform1f(uniLoc, iv)
+    },
+
+    uniform4fv: function(uniLoc, vdata) {
+        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (!uniLoc) return
+        gl.uniform4fv(uniLoc, vdata)
+    },
+
+    uniformMatrix4fv: function(uniLoc, m4) {
+        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (!uniLoc) return
+        gl.uniformMatrix4fv(uniLoc, false, m4)
+    },
+
+    applyModelMatrix: function() {
+        if (!this.uloc.uModelMatrix) return
+        gl.uniformMatrix4fv(this.uloc.uModelMatrix, false, this.modelMatrix)
+    },
+
+    applyNormalMatrix: function() {
+        if (!this.uloc.uModelMatrix) return
+
+        // calculate the normal matrix out of the model one (model => invert => transpose)
+        mat4.copy(this.invMatrix, this.modelMatrix)
+        mat4.invert(this.invMatrix)
+        mat4.transpose(this.normalMatrix, this.invMatrix)
+        gl.uniformMatrix4fv(this.uloc.uNormalMatrix, false, this.normalMatrix)
     },
 
     pushMatrix: function() {
@@ -59,6 +98,14 @@ const __glu__ = {
     scale: function(sv) {
         mat4.scale( this.modelMatrix, sv )
         return this
+    },
+
+    save: function() {
+        this.pushMatrix()
+    },
+
+    restore: function() {
+        this.popMatrix()
     },
 
     getContext: function() {

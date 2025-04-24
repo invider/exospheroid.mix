@@ -41,47 +41,43 @@ class Surface {
         //this.buf.f = this.createBuffer(this.geo.f, gl.ELEMENT_ARRAY_BUFFER)
     }
 
+    // TODO maybe move to glu along with buffer creation?
     bindAttribute(buf, name, nElements) {
         if (!buf) return
-        const _attr = gl.getAttribLocation(glu.glProg, name)
-        gl.enableVertexAttribArray(_attr)
+        const attrLoc = glu.aloc[name]
+        if (attrLoc === undefined) return
+        gl.enableVertexAttribArray(attrLoc)
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-        gl.vertexAttribPointer(_attr, nElements || 3, gl.FLOAT, false, 0, 0)
+        gl.vertexAttribPointer(attrLoc, nElements || 3, gl.FLOAT, false, 0, 0)
     }
 
-    draw() {
-        const uloc = glu.uloc,
-              aloc = glu.aloc
+    preDraw() {
+        const uloc = glu.uloc
+
         // adjust to the world coordinates
-
         // set current model matrix
-        //gl.uniformMatrix4fv(uloc.uModelMatrix, false, glu.modelMatrix)
-
-        // calculate the normal matrix out of the model one (=> invert => transpose)
-        mat4.copy(glu.invMatrix, glu.modelMatrix)
-        mat4.invert(glu.invMatrix)
-        mat4.transpose(glu.normalMatrix, glu.invMatrix)
-        gl.uniformMatrix4fv(uloc.uNormalMatrix, false, glu.normalMatrix)
+        glu.applyModelMatrix()
+        glu.applyNormalMatrix()
 
         // rendering options
         if (this.tex) this.renderOpt[2] = 1
         else this.renderOpt[2] = 0
-        gl.uniform4fv(uloc.uOpt, this.renderOpt)
+        glu.uniform4fv('uOpt', this.renderOpt)
 
         // -------------------------------------
         // bind our geometry and materials
 
         // set the material
-        gl.uniform4fv( uloc.uMatAmbient,       this.m.a )
-        gl.uniform4fv( uloc.uMatDiffuse,       this.m.d )
-        gl.uniform4fv( uloc.uMatSpecular,      this.m.s )
-        gl.uniform1f ( uloc.uSpecularExponent, this.m.n )
+        glu.uniform4fv( uloc.uMatAmbient,   this.m.a )
+        glu.uniform4fv( uloc.uMatDiffuse,   this.m.d )
+        glu.uniform4fv( uloc.uMatSpecular,  this.m.s )
+        glu.uniform1f( 'uSpecularExponent', this.m.n )
 
         if (this.tex) {
             // bind texture
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.tex);
-            gl.uniform1i(uloc.uTexture, 0);
+            glu.uniform1i(uloc.uTexture, 0);
         }
 
         // set the shader attributes 
@@ -89,6 +85,10 @@ class Surface {
         this.bindAttribute(this.buf.normals,  'aVertNorm' )
         this.bindAttribute(this.buf.colors,   'aVertColor')
         this.bindAttribute(this.buf.uvs,      'aVertUV',    2)
+    }
+
+    draw() {
+        this.preDraw()
 
         if (this.renderOpt[1]) {
             // render wireframes

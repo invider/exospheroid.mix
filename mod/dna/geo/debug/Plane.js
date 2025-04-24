@@ -54,7 +54,7 @@ class Plane extends dna.EntityFrame {
         return this
     }
 
-    draw() {
+    preDraw() {
         //lib.glut.useProgram(lib.glsl.zprog.zap)
         const uloc = glu.uloc,
               aloc = glu.aloc
@@ -71,6 +71,10 @@ class Plane extends dna.EntityFrame {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBufRef)
         gl.vertexAttribPointer( gl.getAttribLocation(glu.glProg, 'aVertColor'), 3, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray( gl.getAttribLocation(glu.glProg, 'aVertColor') )
+    }
+
+    draw() {
+        this.preDraw()
 
         gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length / 3)
     }
