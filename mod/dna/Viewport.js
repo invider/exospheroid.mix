@@ -15,7 +15,8 @@ class Viewport extends sys.LabFrame {
     }
 
     setupDraw() {
-        lib.glut.useProgram(lib.glsl.zprog.zap)
+        //lib.glut.useProgram(lib.glsl.zprog.zap)
+        glu.withProgram(lib.glsl.zprog.zap)
 
         gl.enable(gl.DEPTH_TEST)
         gl.depthFunc(gl.LEQUAL)
@@ -30,7 +31,7 @@ class Viewport extends sys.LabFrame {
 
     setUniforms() {
         const cam = this.cam,
-              uloc = gl.curProg.uloc
+              uloc = glu.uloc
 
         // set the model matrix to identity
         // mat4.copy(this.modelMat4, this.inversedMat4)
@@ -64,7 +65,7 @@ class Viewport extends sys.LabFrame {
     }
 
     draw() {
-        if (!gl.curProg || !this.cam) return
+        if (!glu.glProg || !this.cam) return
 
         this.setupDraw()
 

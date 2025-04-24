@@ -51,7 +51,7 @@ function scene() {
         pos: vec3(0, 0, 0),
         rot: vec3(0, 0, 0),
         rotSpeed: vec3(0, 0, 0),
-        scale: vec3(2, 2, 1),
+        scale: vec3(1.5, 1.5, 1.5),
 
         _pods: [
             {

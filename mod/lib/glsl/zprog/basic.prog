@@ -1,2 +1,2 @@
-lib/gl/texMesh2D:lib/gl/basic
+lib/glsl/vert/texMesh2D:lib/glsl/frag/basic
 

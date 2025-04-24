@@ -43,15 +43,15 @@ class Surface {
 
     bindAttribute(buf, name, nElements) {
         if (!buf) return
-        const _attr = gl.getAttribLocation(gl.curProg.glRef, name)
+        const _attr = gl.getAttribLocation(glu.glProg, name)
         gl.enableVertexAttribArray(_attr)
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
         gl.vertexAttribPointer(_attr, nElements || 3, gl.FLOAT, false, 0, 0)
     }
 
     draw() {
-        const uloc = gl.curProg.uloc,
-              aloc = gl.curProg.aloc
+        const uloc = glu.uloc,
+              aloc = glu.aloc
         // adjust to the world coordinates
 
         // set current model matrix

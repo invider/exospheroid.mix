@@ -6,14 +6,30 @@ let context = {
     //normalMat4:   mat4.identity(),
 }
 
-module.exports = {
+const __glu__ = {
 
+    // state
+    glProg:       null,
+    gluProg:      null,
     modelMatrix:  mat4.identity(),
     invMatrix:    mat4.identity(),
     normalMatrix: mat4.identity(),
 
     init: function() {
+        // migrate in the global scope and detach,
+        // since we don't want to use it from here by mistake
         extend($.alt.glu, this, p => !p.startsWith('_') && p !== 'name' && p !== 'init')
+        //this.__.detach(this)
+    },
+
+    withProgram: function(gluProg) {
+        if (this.gluProg === gluProg) return
+
+        gl.useProgram(gluProg.glRef)
+        this.prog   = gluProg
+        this.uloc   = gluProg.uloc
+        this.aloc   = gluProg.aloc
+        this.glProg = gluProg.glRef
     },
 
     pushMatrix: function() {
@@ -49,3 +65,5 @@ module.exports = {
         return context
     },
 }
+
+module.exports = __glu__

@@ -56,8 +56,8 @@ class Plane extends dna.EntityFrame {
 
     draw() {
         //lib.glut.useProgram(lib.glsl.zprog.zap)
-        const uloc = gl.curProg.uloc,
-              aloc = gl.curProg.aloc
+        const uloc = glu.uloc,
+              aloc = glu.aloc
         gl.uniform4fv(uloc.uOpt, this.renderOpt)
 
         // setup the rendering pipeline
@@ -65,12 +65,12 @@ class Plane extends dna.EntityFrame {
         gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.posBufRef)
-        gl.vertexAttribPointer( gl.getAttribLocation(gl.curProg.glRef, 'aVertPos'), 3, gl.FLOAT, false, 0, 0)
-        gl.enableVertexAttribArray( gl.getAttribLocation(gl.curProg.glRef, 'aVertPos') )
+        gl.vertexAttribPointer( gl.getAttribLocation(glu.glProg, 'aVertPos'), 3, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray( gl.getAttribLocation(glu.glProg, 'aVertPos') )
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBufRef)
-        gl.vertexAttribPointer( gl.getAttribLocation(gl.curProg.glRef, 'aVertColor'), 3, gl.FLOAT, false, 0, 0)
-        gl.enableVertexAttribArray( gl.getAttribLocation(gl.curProg.glRef, 'aVertColor') )
+        gl.vertexAttribPointer( gl.getAttribLocation(glu.glProg, 'aVertColor'), 3, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray( gl.getAttribLocation(glu.glProg, 'aVertColor') )
 
         gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length / 3)
     }
