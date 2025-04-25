@@ -17,9 +17,11 @@ class Form extends EntityFrame {
 
         // since we modified the world position, we MUST update the model matrix uniform
         // TODO set through glu
-        gl.uniformMatrix4fv(glu.uloc.uModelMatrix, false, glu.modelMatrix)
+        //gl.uniformMatrix4fv(glu.uloc.uModelMatrix, false, glu.modelMatrix)
+        glu.applyModelMatrix()
         super.draw()
 
         glu.popMatrix()
+        glu.applyModelMatrix()
     }
 }

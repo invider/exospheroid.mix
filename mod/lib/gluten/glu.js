@@ -1,4 +1,7 @@
 let context = {
+    env:         {},
+    progStack:   [],
+
     ptr:         0,
     matrixStack: [],
 }
@@ -6,8 +9,9 @@ let context = {
 const __glu__ = {
 
     // state
+    prog:      null,
     glProg:       null,
-    gluProg:      null,
+
     modelMatrix:  mat4.identity(),
     invMatrix:    mat4.identity(),
     normalMatrix: mat4.identity(),
@@ -20,11 +24,15 @@ const __glu__ = {
         this.__.detach(this)
     },
 
-    withProgram: function(gluProg) {
-        if (this.gluProg === gluProg) return
+    pushProgram: function() {
+        context.progStack.push(context.env)
+    },
 
-        // TODO detect and save the previous one
+    popProgram: function() {
+        if (context.progStack.length === 0) throw new Error(`Can't pop() - GLU Program stack is empty!`)
+        context.env = context.progStack.pop()
 
+        const gluProg = context.env.prog
         gl.useProgram(gluProg.glRef)
         this.prog   = gluProg
         this.uloc   = gluProg.uloc
@@ -32,33 +40,118 @@ const __glu__ = {
         this.glProg = gluProg.glRef
     },
 
+    withUniforms: function(uniforms) {
+        if (!uniforms || uniforms.length === 0) return
+
+        uniforms.forEach(u => {
+            switch(u.type) {
+                case 'uniformMatrix4fv':
+                    this.uniformMatrix4fv(u.uniLoc, u.data)
+                    break
+            }
+        })
+    },
+
+    withProgram: function(gluProg) {
+        //log('with program: ' + gluProg.name)
+        if (this.prog === gluProg) {
+            this.pushProgram()
+            return
+        }
+
+        if (this.prog) {
+            this.pushProgram()
+        }
+
+        gl.useProgram(gluProg.glRef)
+        this.prog   = gluProg
+        this.uloc   = gluProg.uloc
+        this.aloc   = gluProg.aloc
+        this.glProg = gluProg.glRef
+
+        // create new program environment and inherit uniforms
+        const parentUniforms = context.env.uniforms
+        context.env = {
+            prog: gluProg,
+            uniforms: [],
+        }
+        this.withUniforms(parentUniforms)
+    },
+
+    prevProgram: function() {
+        this.popProgram()
+        this.withUniforms(context.env.uniforms)
+    },
+
     uniform1i: function(uniLoc, iv) {
         if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
         if (!uniLoc) return
         gl.uniform1i(uniLoc, iv)
+
+        context.env.uniforms.push({
+            type: 'uniform1i',
+            location: uniLoc,
+            data:     iv,
+        })
     },
 
     uniform1f: function(uniLoc, fv) {
         if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
         if (!uniLoc) return
         gl.uniform1f(uniLoc, iv)
+
+        context.env.uniforms.push({
+            type: 'uniform1f',
+            location: uniLoc,
+            data:     fv,
+        })
+    },
+
+    uniform3fv: function(uniLoc, vdata) {
+        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (!uniLoc) return
+        gl.uniform3fv(uniLoc, vdata)
+
+        context.env.uniforms.push({
+            type: 'uniform3fv',
+            location: uniLoc,
+            data:     vdata,
+        })
     },
 
     uniform4fv: function(uniLoc, vdata) {
         if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
         if (!uniLoc) return
         gl.uniform4fv(uniLoc, vdata)
+
+        context.env.uniforms.push({
+            type: 'uniform4fv',
+            location: uniLoc,
+            data:     vdata,
+        })
     },
 
     uniformMatrix4fv: function(uniLoc, m4) {
         if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
         if (!uniLoc) return
         gl.uniformMatrix4fv(uniLoc, false, m4)
+
+        context.env.uniforms.push({
+            type: 'uniformMatrix4fv',
+            location: uniLoc,
+            data:     m4,
+        })
     },
 
     applyModelMatrix: function() {
         if (!this.uloc.uModelMatrix) return
         gl.uniformMatrix4fv(this.uloc.uModelMatrix, false, this.modelMatrix)
+
+        context.env.uniforms.push({
+            type: 'uniformMatrix4fv',
+            location: this.uloc.uModelMatrix,
+            data:     mat4.clone(this.modelMatrix),
+        })
     },
 
     applyNormalMatrix: function() {
@@ -69,6 +162,12 @@ const __glu__ = {
         mat4.invert(this.invMatrix)
         mat4.transpose(this.normalMatrix, this.invMatrix)
         gl.uniformMatrix4fv(this.uloc.uNormalMatrix, false, this.normalMatrix)
+
+        context.env.uniforms.push({
+            type: 'uniformMatrix4fv',
+            location: this.uloc.uNormalMatrix,
+            data:     mat4.clone(this.normalMatrix),
+        })
     },
 
     pushMatrix: function() {

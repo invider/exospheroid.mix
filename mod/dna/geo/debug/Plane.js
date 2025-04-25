@@ -55,10 +55,16 @@ class Plane extends dna.EntityFrame {
     }
 
     preDraw() {
-        //lib.glut.useProgram(lib.glsl.zprog.zap)
         const uloc = glu.uloc,
               aloc = glu.aloc
-        gl.uniform4fv(uloc.uOpt, this.renderOpt)
+
+        //lib.glut.useProgram(lib.glsl.zprog.zap)
+        glu.withProgram(lib.glsl.zprog.plain)
+
+        //gl.uniform4fv(uloc.uOpt, this.renderOpt)
+        glu.uniform4fv('uOpt', this.renderOpt)
+
+        glu.uniform4fv('uColor', vec4(1, 0, 0, 0))
 
         // setup the rendering pipeline
         gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -68,15 +74,21 @@ class Plane extends dna.EntityFrame {
         gl.vertexAttribPointer( gl.getAttribLocation(glu.glProg, 'aVertPos'), 3, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray( gl.getAttribLocation(glu.glProg, 'aVertPos') )
 
+        /*
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBufRef)
         gl.vertexAttribPointer( gl.getAttribLocation(glu.glProg, 'aVertColor'), 3, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray( gl.getAttribLocation(glu.glProg, 'aVertColor') )
+        */
+    }
+
+    postDraw() {
+        glu.prevProgram(lib.glsl.zprog.plain)
     }
 
     draw() {
         this.preDraw()
-
         gl.drawArrays(gl.TRIANGLES, 0, this.vertices.length / 3)
+        this.postDraw()
     }
 
 }

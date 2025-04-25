@@ -87,6 +87,10 @@ class Surface {
         this.bindAttribute(this.buf.uvs,      'aVertUV',    2)
     }
 
+    postDraw() {
+
+    }
+
     draw() {
         this.preDraw()
 
@@ -107,5 +111,7 @@ class Surface {
             gl.drawArrays(gl.TRIANGLES, 0, this.geo.vertCount)
             if (env.debug) env.stat.polygons += this.geo.vc / 3
         }
+
+        this.postDraw()
     }
 }

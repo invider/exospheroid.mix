@@ -39,10 +39,15 @@ class Viewport extends sys.LabFrame {
 
         // setup up the view and projection transformations
         // TODO merge view and projection into the pv matrix and get it from the camera
-        gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, cam.projectionMatrix())
-        gl.uniformMatrix4fv(uloc.uViewMatrix, false, cam.viewMatrix())
-        gl.uniformMatrix4fv(uloc.uModelMatrix, false, glu.modelMatrix)
-        gl.uniform3fv(uloc.uCamPos, cam.pos)
+        glu.uniformMatrix4fv(uloc.uProjectionMatrix, cam.projectionMatrix())
+        glu.uniformMatrix4fv(uloc.uViewMatrix, cam.viewMatrix())
+        glu.applyModelMatrix()
+        glu.uniform3fv(uloc.uCamPos, cam.pos)
+
+        //gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, cam.projectionMatrix())
+        //gl.uniformMatrix4fv(uloc.uViewMatrix, false, cam.viewMatrix())
+        //gl.uniformMatrix4fv(uloc.uModelMatrix, false, glu.modelMatrix)
+        //gl.uniform3fv(uloc.uCamPos, cam.pos)
         //gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, mat4.identity())
         //gl.uniformMatrix4fv(uloc.uViewMatrix, false, mat4.identity())
         //gl.uniformMatrix4fv(uloc.uModelMatrix, false, mat4.identity())
@@ -62,6 +67,10 @@ class Viewport extends sys.LabFrame {
 
         // tune - fog color
         gl.uniform4fv(uloc.uFogDepth, vec4.rgba('#1d0722FF'))
+    }
+
+    postDraw() {
+        glu.prevProgram()
     }
 
     draw() {
@@ -88,6 +97,8 @@ class Viewport extends sys.LabFrame {
 
         // draw the scene graph
         super.draw()
+
+        this.postDraw()
     }
 
     unbindCamera() {
