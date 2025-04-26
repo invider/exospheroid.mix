@@ -46,7 +46,7 @@ const __glu__ = {
         uniforms.forEach(uniformAssignment => {
             // find gl location for the new program
             // TODO also match by the uniform type!!!
-            const newUniform = this.uniform[uniformAssignment.uniLoc.name]
+            const newUniform = this.uniform[uniformAssignment.uniform.name]
 
             switch(uniformAssignment.type) {
                 case 'uniformMatrix4fv':
@@ -90,65 +90,65 @@ const __glu__ = {
         this.withUniforms(context.env.uniforms)
     },
 
-    uniform1i: function(uniLoc, iv) {
-        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
-        if (!uniLoc) {
+    uniform1i: function(uniform, iv) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
             return
         }
-        gl.uniform1i(uniLoc.glLoc, iv)
+        gl.uniform1i(uniform.glLoc, iv)
 
         context.env.uniforms.push({
             type:    'uniform1i',
-            uniLoc:   uniLoc,
+            uniform:  uniform,
             data:     iv,
         })
     },
 
-    uniform1f: function(uniLoc, fv) {
-        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
-        if (!uniLoc) return
-        gl.uniform1f(uniLoc.glLoc, fv)
+    uniform1f: function(uniform, fv) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) return
+        gl.uniform1f(uniform.glLoc, fv)
 
         context.env.uniforms.push({
             type:    'uniform1f',
-            uniLoc: uniLoc,
+            uniform:  uniform,
             data:     fv,
         })
     },
 
-    uniform3fv: function(uniLoc, vdata) {
-        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
-        if (!uniLoc) return
-        gl.uniform3fv(uniLoc.glLoc, vdata)
+    uniform3fv: function(uniform, vdata) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) return
+        gl.uniform3fv(uniform.glLoc, vdata)
 
         context.env.uniforms.push({
             type:   'uniform3fv',
-            uniLoc:  uniLoc,
+            uniform: uniform,
             data:    vdata,
         })
     },
 
-    uniform4fv: function(uniLoc, vdata) {
-        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
-        if (!uniLoc) return false
-        gl.uniform4fv(uniLoc.glLoc, vdata)
+    uniform4fv: function(uniform, vdata) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) return false
+        gl.uniform4fv(uniform.glLoc, vdata)
 
         context.env.uniforms.push({
             type:    'uniform4fv',
-            uniLoc:   uniLoc,
+            uniform:  uniform,
             data:     vdata,
         })
         return true
     },
 
-    uniformMatrix4fv: function(uniLoc, m4) {
-        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
-        if (!uniLoc) return
-        gl.uniformMatrix4fv(uniLoc.glLoc, false, m4)
+    uniformMatrix4fv: function(uniform, m4) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) return
+        gl.uniformMatrix4fv(uniform.glLoc, false, m4)
 
         context.env.uniforms.push({
             type:   'uniformMatrix4fv',
-            uniLoc:  uniLoc,
+            uniform: uniform,
             data:    m4,
         })
     },
@@ -159,7 +159,7 @@ const __glu__ = {
 
         context.env.uniforms.push({
             type:    'uniformMatrix4fv',
-            uniLoc:   this.uniform.uModelMatrix,
+            uniform:  this.uniform.uModelMatrix,
             data:     mat4.clone(this.modelMatrix),
         })
     },
@@ -174,9 +174,9 @@ const __glu__ = {
         gl.uniformMatrix4fv(this.uniform.uNormalMatrix.glLoc, false, this.normalMatrix)
 
         context.env.uniforms.push({
-            type:   'uniformMatrix4fv',
-            uniLoc:  this.uniform.uNormalMatrix,
-            data:    mat4.clone(this.normalMatrix),
+            type:    'uniformMatrix4fv',
+            uniform:  this.uniform.uNormalMatrix,
+            data:     mat4.clone(this.normalMatrix),
         })
     },
 
