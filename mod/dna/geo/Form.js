@@ -16,8 +16,6 @@ class Form extends EntityFrame {
         glu.translate(this.pos).rot(this.rot).scale(this.scale)
 
         // since we modified the world position, we MUST update the model matrix uniform
-        // TODO set through glu
-        //gl.uniformMatrix4fv(glu.uloc.uModelMatrix, false, glu.modelMatrix)
         glu.applyModelMatrix()
         super.draw()
 

@@ -32,51 +32,41 @@ class Viewport extends sys.LabFrame {
 
     applyMVP() {
         const cam = this.cam
-        glu.uniformMatrix4fv(glu.uloc.uProjectionMatrix, cam.projectionMatrix())
-        glu.uniformMatrix4fv(glu.uloc.uViewMatrix, cam.viewMatrix())
+        glu.uniformMatrix4fv(glu.uniform.uProjectionMatrix, cam.projectionMatrix())
+        glu.uniformMatrix4fv(glu.uniform.uViewMatrix, cam.viewMatrix())
         glu.applyModelMatrix()
     }
 
     setUniforms() {
-        const cam = this.cam,
-              uloc = glu.uloc
+        const cam     = this.cam,
+              uniform = glu.uniform
 
         // setup up the view and projection transformations
         // TODO merge view and projection into the pv matrix and get it from the camera
-        glu.uniformMatrix4fv(uloc.uProjectionMatrix, cam.projectionMatrix())
-        glu.uniformMatrix4fv(uloc.uViewMatrix, cam.viewMatrix())
+        glu.uniformMatrix4fv(uniform.uProjectionMatrix, cam.projectionMatrix())
+        glu.uniformMatrix4fv(uniform.uViewMatrix, cam.viewMatrix())
 
         // set the model matrix to identity
         // mat4.copy(this.modelMat4, this.inversedMat4)
         glu.setIdentity()
         glu.applyModelMatrix()
 
-        glu.uniform3fv(uloc.uCamPos, cam.pos)
-
-        // debug view/projection
-        //gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, cam.projectionMatrix())
-        //gl.uniformMatrix4fv(uloc.uViewMatrix, false, cam.viewMatrix())
-        //gl.uniformMatrix4fv(uloc.uModelMatrix, false, glu.modelMatrix)
-        //gl.uniform3fv(uloc.uCamPos, cam.pos)
-        //gl.uniformMatrix4fv(uloc.uProjectionMatrix, false, mat4.identity())
-        //gl.uniformMatrix4fv(uloc.uViewMatrix, false, mat4.identity())
-        //gl.uniformMatrix4fv(uloc.uModelMatrix, false, mat4.identity())
-        //gl.uniform3fv(uloc.uCamPos, vec3.izero())
+        glu.uniform3fv(uniform.uCamPos, cam.pos)
 
         // TODO precalc in _dirLight buffer and use that instead?
         const nDirLightVec = vec3.clone(env.aura.dirLightVec)
         vec3.scale(nDirLightVec, nDirLightVec, -1)
         vec3.normalize(nDirLightVec, nDirLightVec)
 
-        glu.uniform3fv(uloc.uDirLightVec,   nDirLightVec)
-        glu.uniform4fv(uloc.uDirLightColor, env.aura.dirLightColor)
+        glu.uniform3fv(uniform.uDirLightVec,   nDirLightVec)
+        glu.uniform4fv(uniform.uDirLightColor, env.aura.dirLightColor)
 
         // set point light uniforms
-        glu.uniform3fv(uloc.uPointLights, env.aura.pointLights)
-        glu.uniform4fv(uloc.uPointLightColors, env.aura.pointLightColors)
+        glu.uniform3fv(uniform.uPointLights, env.aura.pointLights)
+        glu.uniform4fv(uniform.uPointLightColors, env.aura.pointLightColors)
 
         // tune - fog color
-        glu.uniform4fv(uloc.uFogDepth, vec4.rgba('#1d0722FF'))
+        glu.uniform4fv(uniform.uFogDepth, vec4.rgba('#1d0722FF'))
     }
 
     postDraw() {

@@ -55,8 +55,8 @@ class Plane extends dna.EntityFrame {
     }
 
     preDraw() {
-        const uloc = glu.uloc,
-              aloc = glu.aloc
+        const uniform   = glu.uniform,
+              attribute = glu.attribute
 
         //lib.glut.useProgram(lib.glsl.zprog.zap)
         //glu.withProgram(lib.glsl.zprog.flat)
@@ -65,7 +65,7 @@ class Plane extends dna.EntityFrame {
         // we're missing MVP at this point!!!
         //lab.port.applyMVP()
 
-        //gl.uniform4fv(uloc.uOpt, this.renderOpt)
+        //gl.uniform4fv(uniform.uOpt, this.renderOpt)
         //glu.uniform4fv('uOpt', this.renderOpt)
 
         glu.uniform4fv('uColor', vec4(0, .4, .7, 0))

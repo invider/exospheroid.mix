@@ -44,7 +44,7 @@ class Surface {
     // TODO maybe move to glu along with buffer creation?
     bindAttribute(buf, name, nElements) {
         if (!buf) return
-        const attribute = glu.aloc[name]
+        const attribute = glu.attribute[name]
         if (attribute === undefined) return
         gl.enableVertexAttribArray(attribute.glLoc)
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
@@ -52,7 +52,7 @@ class Surface {
     }
 
     preDraw() {
-        const uloc = glu.uloc
+        const uniform = glu.uniform
 
         // adjust to the world coordinates
         // set current model matrix
@@ -68,16 +68,16 @@ class Surface {
         // bind our geometry and materials
 
         // set the material
-        glu.uniform4fv( uloc.uMatAmbient,   this.m.a )
-        glu.uniform4fv( uloc.uMatDiffuse,   this.m.d )
-        glu.uniform4fv( uloc.uMatSpecular,  this.m.s )
+        glu.uniform4fv( uniform.uMatAmbient,   this.m.a )
+        glu.uniform4fv( uniform.uMatDiffuse,   this.m.d )
+        glu.uniform4fv( uniform.uMatSpecular,  this.m.s )
         glu.uniform1f( 'uSpecularExponent', this.m.n )
 
         if (this.tex) {
             // bind texture
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.tex);
-            glu.uniform1i(uloc.uTexture, 0);
+            glu.uniform1i(uniform.uTexture, 0);
         }
 
         // set the shader attributes 

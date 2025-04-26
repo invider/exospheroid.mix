@@ -34,10 +34,10 @@ const __glu__ = {
 
         const gluProg = context.env.prog
         gl.useProgram(gluProg.glRef)
-        this.prog   = gluProg
-        this.uloc   = gluProg.uloc
-        this.aloc   = gluProg.aloc
-        this.glProg = gluProg.glRef
+        this.prog      = gluProg
+        this.uniform   = gluProg.uniform
+        this.attribute = gluProg.attribute
+        this.glProg    = gluProg.glRef
     },
 
     withUniforms: function(uniforms) {
@@ -46,7 +46,7 @@ const __glu__ = {
         uniforms.forEach(uniformAssignment => {
             // find gl location for the new program
             // TODO also match by the uniform type!!!
-            const newUniform = this.uloc[uniformAssignment.uniLoc.name]
+            const newUniform = this.uniform[uniformAssignment.uniLoc.name]
 
             switch(uniformAssignment.type) {
                 case 'uniformMatrix4fv':
@@ -71,10 +71,10 @@ const __glu__ = {
         }
 
         gl.useProgram(gluProg.glRef)
-        this.prog   = gluProg
-        this.uloc   = gluProg.uloc
-        this.aloc   = gluProg.aloc
-        this.glProg = gluProg.glRef
+        this.prog      = gluProg
+        this.uniform   = gluProg.uniform
+        this.attribute = gluProg.attribute
+        this.glProg    = gluProg.glRef
 
         // create new program environment and inherit uniforms
         const parentUniforms = context.env.uniforms
@@ -91,7 +91,7 @@ const __glu__ = {
     },
 
     uniform1i: function(uniLoc, iv) {
-        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
         if (!uniLoc) {
             return
         }
@@ -105,7 +105,7 @@ const __glu__ = {
     },
 
     uniform1f: function(uniLoc, fv) {
-        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
         if (!uniLoc) return
         gl.uniform1f(uniLoc.glLoc, fv)
 
@@ -117,7 +117,7 @@ const __glu__ = {
     },
 
     uniform3fv: function(uniLoc, vdata) {
-        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
         if (!uniLoc) return
         gl.uniform3fv(uniLoc.glLoc, vdata)
 
@@ -129,7 +129,7 @@ const __glu__ = {
     },
 
     uniform4fv: function(uniLoc, vdata) {
-        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
         if (!uniLoc) return false
         gl.uniform4fv(uniLoc.glLoc, vdata)
 
@@ -142,7 +142,7 @@ const __glu__ = {
     },
 
     uniformMatrix4fv: function(uniLoc, m4) {
-        if (isStr(uniLoc)) uniLoc = this.uloc[uniLoc]
+        if (isStr(uniLoc)) uniLoc = this.uniform[uniLoc]
         if (!uniLoc) return
         gl.uniformMatrix4fv(uniLoc.glLoc, false, m4)
 
@@ -154,28 +154,28 @@ const __glu__ = {
     },
 
     applyModelMatrix: function() {
-        if (!this.uloc.uModelMatrix) return
-        gl.uniformMatrix4fv(this.uloc.uModelMatrix.glLoc, false, this.modelMatrix)
+        if (!this.uniform.uModelMatrix) return
+        gl.uniformMatrix4fv(this.uniform.uModelMatrix.glLoc, false, this.modelMatrix)
 
         context.env.uniforms.push({
             type:    'uniformMatrix4fv',
-            uniLoc:   this.uloc.uModelMatrix,
+            uniLoc:   this.uniform.uModelMatrix,
             data:     mat4.clone(this.modelMatrix),
         })
     },
 
     applyNormalMatrix: function() {
-        if (!this.uloc.uNormalMatrix) return
+        if (!this.uniform.uNormalMatrix) return
 
         // calculate the normal matrix out of the model one (model => invert => transpose)
         mat4.copy(this.invMatrix, this.modelMatrix)
         mat4.invert(this.invMatrix)
         mat4.transpose(this.normalMatrix, this.invMatrix)
-        gl.uniformMatrix4fv(this.uloc.uNormalMatrix.glLoc, false, this.normalMatrix)
+        gl.uniformMatrix4fv(this.uniform.uNormalMatrix.glLoc, false, this.normalMatrix)
 
         context.env.uniforms.push({
             type:   'uniformMatrix4fv',
-            uniLoc:  this.uloc.uNormalMatrix,
+            uniLoc:  this.uniform.uNormalMatrix,
             data:    mat4.clone(this.normalMatrix),
         })
     },

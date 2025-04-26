@@ -4,9 +4,9 @@ class Program {
 
     constructor(st) {
         augment(this, {
-            id: ++id,
-            uloc: {},
-            aloc: {},
+            id:        ++id,
+            uniform:   {},
+            attribute: {},
         }, st)
 
         this.parse()
@@ -50,7 +50,7 @@ class Program {
         if (!shader.defs) return
 
         shader.defs.uniform.forEach(uniform => {
-            this.uloc[uniform.name] = {
+            this.uniform[uniform.name] = {
                 __:    this,
                 type:  uniform.type,
                 name:  uniform.name,
@@ -60,7 +60,7 @@ class Program {
 
         if (shader.glType === gl.VERTEX_SHADER) {
             shader.defs.in.forEach(attribute => {
-                this.aloc[attribute.name] = {
+                this.attribute[attribute.name] = {
                     __:    this,
                     type:  attribute.type,
                     name:  attribute.name,
