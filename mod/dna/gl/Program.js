@@ -35,12 +35,12 @@ class Program {
         const fShader = this.fShader = _.selectOne(this.fragmentPath)
 
         if (!vShader) throw `[${this.id}:${this.name}] Can't find vertex shader @[${this.vertexPath}]`
-        if (!(vShader instanceof dna.gl.Shader) || vShader.TYPE !== 'vertex') {
+        if (!(vShader instanceof dna.gl.Shader) || vShader.type !== 'vertex') {
             console.dir(vShader)
             throw `Wrong Shader! Expecting a vertex shader @[${this.vertexPath}]`
         }
         if (!fShader) throw `[${this.id}:${this.name}] Can't find fragment shader @[${this.fragmentPath}]`
-        if (!(fShader instanceof dna.gl.Shader) || fShader.TYPE !== 'fragment') {
+        if (!(fShader instanceof dna.gl.Shader) || fShader.type !== 'fragment') {
             console.dir(fShader)
             throw `Wrong Shader! Expecting a fragment shader @[${this.vertexPath}]`
         }
@@ -49,20 +49,25 @@ class Program {
     bindLocations(shader) {
         if (!shader.defs) return
 
-        shader.defs.uniforms.forEach(uniform => {
-            this.uloc[uniform] = {
+        shader.defs.uniform.forEach(uniform => {
+            this.uloc[uniform.name] = {
                 __:    this,
-                name:  uniform,
-                glLoc: gl.getUniformLocation(this.glRef, uniform)
+                type:  uniform.type,
+                name:  uniform.name,
+                glLoc: gl.getUniformLocation(this.glRef, uniform.name)
             }
         })
-        shader.defs.attributes.forEach(attribute => {
-            this.aloc[attribute] = {
-                __:    this,
-                name:  attribute,
-                glLoc: gl.getAttribLocation(this.glRef, attribute)
-            }
-        })
+
+        if (shader.glType === gl.VERTEX_SHADER) {
+            shader.defs.in.forEach(attribute => {
+                this.aloc[attribute.name] = {
+                    __:    this,
+                    type:  attribute.type,
+                    name:  attribute.name,
+                    glLoc: gl.getAttribLocation(this.glRef, attribute.name)
+                }
+            })
+        }
     }
 
     link() {

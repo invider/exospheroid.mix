@@ -6,19 +6,7 @@
 //
 // TODO make a GLSL parser to extract that information directly from the shader source.
 //
-// >>> uniforms <<<
-// uModelMatrix
-// uNormalMatrix
-// uViewMatrix
-// uProjectionMatrix
-// >>> end <<<
 
-// >>> attributes <<<
-// aVertPos
-// aVertNorm
-// aVertColor
-// aVertUV
-// >>> end <<<
 uniform mat4 uModelMatrix, uNormalMatrix, uViewMatrix, uProjectionMatrix;
 
 in vec3 aVertPos, aVertNorm, aVertColor;

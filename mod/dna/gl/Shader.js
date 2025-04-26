@@ -8,12 +8,12 @@ class Shader {
             id: ++id,
         }, st)
 
-        switch(this.type) {
+        switch(this.glType) {
             case gl.VERTEX_SHADER:
-                this.TYPE = 'vertex'
+                this.type = 'vertex'
                 break
             case gl.FRAGMENT_SHADER:
-                this.TYPE = 'fragment'
+                this.type = 'fragment'
                 break
         }
 
@@ -27,10 +27,10 @@ class Shader {
     }
 
     compile() {
-        log(`creating and compiling ${this.TYPE} shader [${this.name}]...`)
+        log(`creating and compiling ${this.type} shader [${this.name}]...`)
         if (!this.src) throw new Error(`[${this.id}:${this.name}] can't compile - shader source is missing!`)
         try {
-            const glRef = this.glRef = gl.createShader(this.type)
+            const glRef = this.glRef = gl.createShader(this.glType)
             gl.shaderSource(glRef, this.src)
             gl.compileShader(glRef)
             if (!gl.getShaderParameter(glRef, gl.COMPILE_STATUS)) {

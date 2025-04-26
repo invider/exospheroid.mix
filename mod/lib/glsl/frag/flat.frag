@@ -5,9 +5,6 @@
 // Collider.JAM automatically binds their location.
 //
 // TODO make a GLSL parser to extract that information directly from the shader source.
-//
-// >>> uniforms <<<
-// >>> end <<<
 
 precision highp float;
 

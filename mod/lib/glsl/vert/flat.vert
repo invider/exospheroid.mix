@@ -5,17 +5,7 @@
 // Collider.JAM automatically binds their location.
 //
 // TODO make a GLSL parser to extract that information directly from the shader source.
-//
-// >>> uniforms <<<
-// uModelMatrix
-// uViewMatrix
-// uProjectionMatrix
-// >>> end <<<
 
-// >>> attributes <<<
-// aVertPos
-// aVertColor
-// >>> end <<<
 uniform mat4 uModelMatrix, uViewMatrix, uProjectionMatrix;
 
 in vec3 aVertPos, aVertColor;

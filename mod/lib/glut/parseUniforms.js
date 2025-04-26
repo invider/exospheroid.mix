@@ -12,45 +12,60 @@ function stripComment(line) {
     return line
 }
 
-function parseUniforms(src) {
+function parseUniforms(src, ext) {
     const lines = src.split('\n')
 
     const defs = {
-        uniforms:   [],
-        attributes: [],
+        uniform:    [],
+        in:         [],
+        out:        [],
+        total:      0,
+    }
+
+    function define(variety, type, name) {
+        log('[' + variety + ']: ' + type + ' - ' + name)
+        defs[variety].push({
+            type,
+            name,
+        })
+        defs.total ++
     }
 
     let state = NONE
     for (let i = 0; i < lines.length; i++) {
-        const line = stripComment(lines[i])
-        if (!line) continue
+        // get individual line
+        let raw = lines[i].trim()
+        //if (raw.endsWith(';')) raw = raw.substring(0, raw.length - 1)
+        const rawWords = raw.split(/[\s,;]+/).filter(l => l.length > 0)
+        // filter out line comments
+        const words = []
+        for (let j = 0; j < rawWords.length; j++) {
+            const w = rawWords[j]
+            if (w.startsWith('//')) break
+            words.push(w)
+        }
+        if (words.length === 0) continue
 
-        switch(state) {
-            case NONE:
-                if (line.includes('>>> uniforms <<<')) {
-                    state = UNIFORMS
-                } else if (line.includes('>>> attributes <<<')) {
-                    state = ATTRIBUTES
-                } else {
-                    // just ignore the line
-                }
-                break
-            case UNIFORMS:
-                if (line.includes('>>> end <<<')) {
-                    state = NONE
-                } else {
-                    if (line) defs.uniforms.push(line)
-                }
-                break
-            case ATTRIBUTES:
-                if (line.includes('>>> end <<<')) {
-                    state = NONE
-                } else {
-                    if (line) defs.attributes.push(line)
-                }
-                break
+        let variety
+        const w0 = words[0]
+        if (w0 === 'uniform' || w0 === 'in' || w0 === 'out') variety = w0
+
+        if (variety) {
+            const type = words[1]
+            for (let k = 2; k < words.length; k++) {
+                const name = words[k]
+                define(variety, type, name)
+            }
+        } else {
+
+            log(words)
+        }
+
+        if (words[0] === '#version') {
+            defs.version = words[1] || ''
+            defs.subVersion = words[2] || ''
         }
     }
 
-    if (defs.uniforms.length > 0 || defs.attributes.length > 0) return defs
+    if (defs.total > 0) return defs
 }

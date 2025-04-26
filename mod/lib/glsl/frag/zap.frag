@@ -5,26 +5,6 @@
 // Collider.JAM automatically binds their location.
 //
 // TODO make a GLSL parser to extract that information directly from the shader source.
-//
-// >>> uniforms <<<
-//
-// uOpt
-// uDirLightColor
-// uFogColor
-// uPointLightColors
-// uMatAmbient
-// uMatDiffuse
-// uMatSpecular
-//
-// uCamPos
-// uDirLightVec
-// uPointLights
-//
-// uSpecularExponent
-//
-// uTexture
-//
-// >>> end <<<
 
 precision highp float;
 
