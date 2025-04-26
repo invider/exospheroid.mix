@@ -44,11 +44,11 @@ class Surface {
     // TODO maybe move to glu along with buffer creation?
     bindAttribute(buf, name, nElements) {
         if (!buf) return
-        const attrLoc = glu.aloc[name]
-        if (attrLoc === undefined) return
-        gl.enableVertexAttribArray(attrLoc)
+        const attribute = glu.aloc[name]
+        if (attribute === undefined) return
+        gl.enableVertexAttribArray(attribute.glLoc)
         gl.bindBuffer(gl.ARRAY_BUFFER, buf)
-        gl.vertexAttribPointer(attrLoc, nElements || 3, gl.FLOAT, false, 0, 0)
+        gl.vertexAttribPointer(attribute.glLoc, nElements || 3, gl.FLOAT, false, 0, 0)
     }
 
     preDraw() {

@@ -50,10 +50,18 @@ class Program {
         if (!shader.defs) return
 
         shader.defs.uniforms.forEach(uniform => {
-            this.uloc[uniform] = gl.getUniformLocation(this.glRef, uniform)
+            this.uloc[uniform] = {
+                __:    this,
+                name:  uniform,
+                glLoc: gl.getUniformLocation(this.glRef, uniform)
+            }
         })
         shader.defs.attributes.forEach(attribute => {
-            this.aloc[attribute] = gl.getAttribLocation(this.glRef, attribute)
+            this.aloc[attribute] = {
+                __:    this,
+                name:  attribute,
+                glLoc: gl.getAttribLocation(this.glRef, attribute)
+            }
         })
     }
 

@@ -59,17 +59,22 @@ class Plane extends dna.EntityFrame {
               aloc = glu.aloc
 
         //lib.glut.useProgram(lib.glsl.zprog.zap)
-        glu.withProgram(lib.glsl.zprog.plain)
+        //glu.withProgram(lib.glsl.zprog.flat)
+        glu.withProgram(lib.glsl.zprog.plainColor)
+
+        // we're missing MVP at this point!!!
+        //lab.port.applyMVP()
 
         //gl.uniform4fv(uloc.uOpt, this.renderOpt)
-        glu.uniform4fv('uOpt', this.renderOpt)
+        //glu.uniform4fv('uOpt', this.renderOpt)
 
-        glu.uniform4fv('uColor', vec4(1, 0, 0, 0))
+        glu.uniform4fv('uColor', vec4(0, .4, .7, 0))
 
         // setup the rendering pipeline
         gl.enable(gl.DEPTH_TEST); // Enable depth testing
         gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
+        // TODO map buffers automatically if there is a standard name
         gl.bindBuffer(gl.ARRAY_BUFFER, this.posBufRef)
         gl.vertexAttribPointer( gl.getAttribLocation(glu.glProg, 'aVertPos'), 3, gl.FLOAT, false, 0, 0)
         gl.enableVertexAttribArray( gl.getAttribLocation(glu.glProg, 'aVertPos') )
@@ -82,7 +87,7 @@ class Plane extends dna.EntityFrame {
     }
 
     postDraw() {
-        glu.prevProgram(lib.glsl.zprog.plain)
+        glu.prevProgram()
     }
 
     draw() {
