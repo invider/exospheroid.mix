@@ -21,3 +21,8 @@ To warp directly to space, use --warp flag:
 ```
 jam -d --warp
 ```
+
+To catch all missing uniform, use: 
+```
+jam -d --failOnMissingUniform
+```

@@ -69,6 +69,7 @@ class Plane extends dna.EntityFrame {
         //glu.uniform4fv('uOpt', this.renderOpt)
 
         glu.uniform4fv('uColor', vec4(0, .4, .7, 0))
+        glu.uniform1f('testo', 10.1)
 
         // setup the rendering pipeline
         gl.enable(gl.DEPTH_TEST); // Enable depth testing
