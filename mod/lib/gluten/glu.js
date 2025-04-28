@@ -1,27 +1,27 @@
-
 const
-    UNIFORM_1I         = 1,
-    UNIFORM_1IV        = 2,
-    UNIFORM_1F         = 3,
-    UNIFORM_1FV        = 4,
+    UNIFORM_1I         = 11,
+    UNIFORM_1IV        = 12,
+    UNIFORM_1F         = 13,
+    UNIFORM_1FV        = 14,
 
-    UNIFORM_2I         = 5,
-    UNIFORM_2IV        = 6,
-    UNIFORM_2F         = 7,
-    UNIFORM_2FV        = 8,
+    UNIFORM_2I         = 21,
+    UNIFORM_2IV        = 22,
+    UNIFORM_2F         = 23,
+    UNIFORM_2FV        = 24,
 
-    UNIFORM_3I         = 9,
-    UNIFORM_3IV        = 10,
-    UNIFORM_3F         = 11,
-    UNIFORM_3FV        = 12,
+    UNIFORM_3I         = 31,
+    UNIFORM_3IV        = 32,
+    UNIFORM_3F         = 33,
+    UNIFORM_3FV        = 34,
 
-    UNIFORM_4I         = 13,
-    UNIFORM_4IV        = 14,
-    UNIFORM_4F         = 15,
-    UNIFORM_4FV        = 16,
+    UNIFORM_4I         = 41,
+    UNIFORM_4IV        = 42,
+    UNIFORM_4F         = 43,
+    UNIFORM_4FV        = 44,
 
-    UNIFORM_MATRIX_3FV = 21,
-    UNIFORM_MATRIX_4FV = 22
+    UNIFORM_MATRIX_2FV = 102,
+    UNIFORM_MATRIX_3FV = 103,
+    UNIFORM_MATRIX_4FV = 104
 
 let context = {
     env:         {},
@@ -65,27 +65,47 @@ const __glu__ = {
         this.glProg    = gluProg.glRef
     },
 
-    withUniforms: function(uniforms) {
-        if (!uniforms || uniforms.length === 0) return
+    withUniforms: function(appliedUniforms, local) {
+        if (!appliedUniforms || appliedUniforms.length === 0) return
 
-        uniforms.forEach(ua => {
-            // find gl location for the new program
-            // TODO also match by the uniform type!!!
-            const newUniform = this.uniform[ua.uniform.name]
-            if (newUniform) {
-                switch(ua.method) {
-                    case UNIFORM_1I:  this.uniform1i(newUniform, ua.v0); break;
-                    case UNIFORM_1IV: this.uniform1iv(newUniform, ua.iv); break;
-                    case UNIFORM_1F: this.uniform1f(newUniform, ua.f0); break;
+        appliedUniforms.forEach(au => {
+            if (!au.local || local) {
+                // find gl location for the new program
+                // TODO also match by the uniform type!!!
+                const newUniform = this.uniform[au.uniform.name]
+                if (newUniform && au.uniform.type === newUniform.type) {
+                    switch(au.method) {
+                        case UNIFORM_1I:  this.uniform1i (newUniform, au.i0); break;
+                        case UNIFORM_1IV: this.uniform1iv(newUniform, au.iv); break;
+                        case UNIFORM_1F:  this.uniform1f (newUniform, au.f0); break;
+                        case UNIFORM_1FV: this.uniform1fv(newUniform, au.fv); break;
 
-                    case UNIFORM_3FV: this.uniform3fv(newUniform, ua.fv); break;
-                    case UNIFORM_4FV: this.uniform4fv(newUniform, ua.fv); break;
+                        case UNIFORM_2I:  this.uniform2i (newUniform, au.i0, au.i1); break;
+                        case UNIFORM_2IV: this.uniform2iv(newUniform, au.iv); break;
+                        case UNIFORM_2F:  this.uniform2f (newUniform, au.f0, au.f1); break;
+                        case UNIFORM_2FV: this.uniform2fv(newUniform, au.fv); break;
 
-                    case UNIFORM_MATRIX_3FV: this.uniformMatrix3fv(newUniform, ua.fv); break;
-                    case UNIFORM_MATRIX_4FV: this.uniformMatrix4fv(newUniform, ua.fv); break;
+                        case UNIFORM_3I:  this.uniform3i (newUniform, au.i0, au.i1, au.i2); break;
+                        case UNIFORM_3IV: this.uniform3iv(newUniform, au.iv); break;
+                        case UNIFORM_3F:  this.uniform3f (newUniform, au.f0, au.f1, au.f2); break;
+                        case UNIFORM_3FV: this.uniform3fv(newUniform, au.fv); break;
+
+                        case UNIFORM_4I:  this.uniform4i (newUniform, au.i0, au.i1, au.i2, au.i3); break;
+                        case UNIFORM_4IV: this.uniform4iv(newUniform, au.iv); break;
+                        case UNIFORM_4F:  this.uniform4f (newUniform, au.f0, au.f1, au.f2, au.f3); break;
+                        case UNIFORM_4FV: this.uniform4fv(newUniform, au.fv); break;
+
+                        case UNIFORM_MATRIX_2FV: this.uniformMatrix2fv(newUniform, au.fv); break;
+                        case UNIFORM_MATRIX_3FV: this.uniformMatrix3fv(newUniform, au.fv); break;
+                        case UNIFORM_MATRIX_4FV: this.uniformMatrix4fv(newUniform, au.fv); break;
+                    }
                 }
             }
         })
+    },
+
+    withLocalUniforms: function(uniforms) {
+        this.withUniforms(uniforms, true)
     },
 
     withProgram: function(gluProg, rejectUniforms) {
@@ -128,13 +148,12 @@ const __glu__ = {
         }
         gl.uniform1i(uniform.glLoc, v0)
 
-        if (!local) {
-            context.env.uniforms.push({
-                method:   UNIFORM_1I,
-                uniform:  uniform,
-                v0:       v0,
-            })
-        }
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_1I,
+            uniform:  uniform,
+            v0:       v0,
+        })
     },
 
     uniform1iv: function(uniform, iv, local) {
@@ -145,13 +164,12 @@ const __glu__ = {
         }
         gl.uniform1iv(uniform.glLoc, iv)
 
-        if (!local) {
-            context.env.uniforms.push({
-                method:   UNIFORM_1IV,
-                uniform:  uniform,
-                iv:       iv,
-            })
-        }
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_1IV,
+            uniform:  uniform,
+            iv:       iv,
+        })
     },
 
     uniform1f: function(uniform, f0, local) {
@@ -162,13 +180,12 @@ const __glu__ = {
         }
         gl.uniform1f(uniform.glLoc, f0)
 
-        if (!local) {
-            context.env.uniforms.push({
-                method:   UNIFORM_1F,
-                uniform:  uniform,
-                f0:       f0,
-            })
-        }
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_1F,
+            uniform:  uniform,
+            f0:       f0,
+        })
     },
 
     uniform1fv: function(uniform, fv, local) {
@@ -179,13 +196,130 @@ const __glu__ = {
         }
         gl.uniform1fv(uniform.glLoc, fv)
 
-        if (!local) {
-            context.env.uniforms.push({
-                method:   UNIFORM_1FV,
-                uniform:  uniform,
-                fv:       fv,
-            })
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_1FV,
+            uniform:  uniform,
+            fv:       fv,
+        })
+    },
+    
+    uniform2i: function(uniform, i0, i1, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
         }
+        gl.uniform2i(uniform.glLoc, i0, i1)
+
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_2I,
+            uniform:  uniform,
+            i0:       i0,
+            i1:       i1,
+        })
+    },
+
+    uniform2iv: function(uniform, iv, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniform2iv(uniform.glLoc, iv)
+
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_2IV,
+            uniform:  uniform,
+            iv:       iv,
+        })
+    },
+
+    uniform2f: function(uniform, f0, f1, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniform2f(uniform.glLoc, f0, f1)
+
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_2F,
+            uniform:  uniform,
+            f0:       f0,
+            f1:       f1,
+        })
+    },
+
+    uniform2fv: function(uniform, fv, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniform2fv(uniform.glLoc, fv)
+
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_2FV,
+            uniform:  uniform,
+            fv:       fv,
+        })
+    },
+
+    uniform3i: function(uniform, i0, i1, i2, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniform3i(uniform.glLoc, i0, i1, i2)
+
+        context.env.uniforms.push({
+            local:   !!local,
+            method:  UNIFORM_3I,
+            uniform: uniform,
+            i0:      i0,
+            i1:      i1,
+            i2:      i2,
+        })
+    },
+
+    uniform3iv: function(uniform, iv, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniform3iv(uniform.glLoc, iv)
+
+        context.env.uniforms.push({
+            local:   !!local,
+            method:  UNIFORM_3IV,
+            uniform: uniform,
+            iv:      iv,
+        })
+    },
+
+    uniform3f: function(uniform, f0, f1, f2, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniform3f(uniform.glLoc, f0, f1, f2)
+
+        context.env.uniforms.push({
+            local:   !!local,
+            method:  UNIFORM_3F,
+            uniform: uniform,
+            f0:      f0,
+            f1:      f1,
+            f2:      f2,
+        })
     },
 
     uniform3fv: function(uniform, fv, local) {
@@ -196,13 +330,66 @@ const __glu__ = {
         }
         gl.uniform3fv(uniform.glLoc, fv)
 
-        if (!local) {
-            context.env.uniforms.push({
-                method:  UNIFORM_3FV,
-                uniform: uniform,
-                fv:      fv,
-            })
+        context.env.uniforms.push({
+            local:   !!local,
+            method:  UNIFORM_3FV,
+            uniform: uniform,
+            fv:      fv,
+        })
+    },
+
+    uniform4i: function(uniform, i0, i1, i2, i3, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
         }
+        gl.uniform4i(uniform.glLoc, i0, i1, i2, i3)
+
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_4I,
+            uniform:  uniform,
+            i0:       i0,
+            i1:       i1,
+            i2:       i2,
+            i3:       i3,
+        })
+    },
+
+    uniform4iv: function(uniform, iv, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniform4iv(uniform.glLoc, iv)
+
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_4IV,
+            uniform:  uniform,
+            iv:       iv,
+        })
+    },
+
+    uniform4f: function(uniform, f0, f1, f2, f3, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniform4f(uniform.glLoc, f0, f1, f2, f3)
+
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_4F,
+            uniform:  uniform,
+            f0:       f0,
+            f1:       f1,
+            f2:       f2,
+            f3:       f3,
+        })
     },
 
     uniform4fv: function(uniform, fv, local) {
@@ -213,13 +400,44 @@ const __glu__ = {
         }
         gl.uniform4fv(uniform.glLoc, fv)
 
-        if (!local) {
-            context.env.uniforms.push({
-                method:   UNIFORM_4FV,
-                uniform:  uniform,
-                fv:       fv,
-            })
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_4FV,
+            uniform:  uniform,
+            fv:       fv,
+        })
+    },
+
+    uniformMatrix2fv: function(uniform, fv, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) new Error(`Missing a uniform!`)
+            return
         }
+        gl.uniformMatrix2fv(uniform.glLoc, false, fv)
+
+        context.env.uniforms.push({
+            local:   !!local,
+            method:  UNIFORM_MATRIX_2FV,
+            uniform: uniform,
+            fv:      fv,
+        })
+    },
+
+    uniformMatrix3fv: function(uniform, fv, local) {
+        if (isStr(uniform)) uniform = this.uniform[uniform]
+        if (!uniform) {
+            if (env.config.failOnMissingUniform) new Error(`Missing a uniform!`)
+            return
+        }
+        gl.uniformMatrix3fv(uniform.glLoc, false, fv)
+
+        context.env.uniforms.push({
+            local:   !!local,
+            method:  UNIFORM_MATRIX_3FV,
+            uniform: uniform,
+            fv:      fv,
+        })
     },
 
     uniformMatrix4fv: function(uniform, fv, local) {
@@ -230,27 +448,24 @@ const __glu__ = {
         }
         gl.uniformMatrix4fv(uniform.glLoc, false, fv)
 
-        if (!local) {
-            context.env.uniforms.push({
-                method:  UNIFORM_MATRIX_4FV, //uniformMatrix4fv',
-                uniform: uniform,
-                fv:    fv,
-            })
-        }
+        context.env.uniforms.push({
+            local:   !!local,
+            method:  UNIFORM_MATRIX_4FV,
+            uniform: uniform,
+            fv:      fv,
+        })
     },
 
     applyModelMatrix: function(local) {
         if (!this.uniform.uModelMatrix) return
         gl.uniformMatrix4fv(this.uniform.uModelMatrix.glLoc, false, this.modelMatrix)
 
-        if (!local) {
-            context.env.uniforms.push({
-                //type:    'uniformMatrix4fv',
-                method:   UNIFORM_MATRIX_4FV,
-                uniform:  this.uniform.uModelMatrix,
-                fv:        mat4.clone(this.modelMatrix),
-            })
-        }
+        context.env.uniforms.push({
+            local:   !!local,
+            method:  UNIFORM_MATRIX_4FV,
+            uniform: this.uniform.uModelMatrix,
+            fv:      mat4.clone(this.modelMatrix),
+        })
     },
 
     applyNormalMatrix: function(local) {
@@ -262,13 +477,12 @@ const __glu__ = {
         mat4.transpose(this.normalMatrix, this.invMatrix)
         gl.uniformMatrix4fv(this.uniform.uNormalMatrix.glLoc, false, this.normalMatrix)
 
-        if (!local) {
-            context.env.uniforms.push({
-                method:   UNIFORM_MATRIX_4FV,
-                uniform:  this.uniform.uNormalMatrix,
-                fv:       mat4.clone(this.normalMatrix),
-            })
-        }
+        context.env.uniforms.push({
+            local:    !!local,
+            method:   UNIFORM_MATRIX_4FV,
+            uniform:  this.uniform.uNormalMatrix,
+            fv:       mat4.clone(this.normalMatrix),
+        })
     },
 
     pushMatrix: function() {
