@@ -120,7 +120,7 @@ const __glu__ = {
         this.withUniforms(context.env.uniforms)
     },
 
-    uniform1i: function(uniform, v0) {
+    uniform1i: function(uniform, v0, local) {
         if (isStr(uniform)) uniform = this.uniform[uniform]
         if (!uniform) {
             if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
@@ -128,14 +128,16 @@ const __glu__ = {
         }
         gl.uniform1i(uniform.glLoc, v0)
 
-        context.env.uniforms.push({
-            method:   UNIFORM_1I,
-            uniform:  uniform,
-            v0:       v0,
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                method:   UNIFORM_1I,
+                uniform:  uniform,
+                v0:       v0,
+            })
+        }
     },
 
-    uniform1iv: function(uniform, iv) {
+    uniform1iv: function(uniform, iv, local) {
         if (isStr(uniform)) uniform = this.uniform[uniform]
         if (!uniform) {
             if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
@@ -143,14 +145,16 @@ const __glu__ = {
         }
         gl.uniform1iv(uniform.glLoc, iv)
 
-        context.env.uniforms.push({
-            method:   UNIFORM_1IV,
-            uniform:  uniform,
-            iv:       iv,
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                method:   UNIFORM_1IV,
+                uniform:  uniform,
+                iv:       iv,
+            })
+        }
     },
 
-    uniform1f: function(uniform, f0) {
+    uniform1f: function(uniform, f0, local) {
         if (isStr(uniform)) uniform = this.uniform[uniform]
         if (!uniform) {
             if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
@@ -158,14 +162,16 @@ const __glu__ = {
         }
         gl.uniform1f(uniform.glLoc, f0)
 
-        context.env.uniforms.push({
-            method:   UNIFORM_1F,
-            uniform:  uniform,
-            f0:       f0,
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                method:   UNIFORM_1F,
+                uniform:  uniform,
+                f0:       f0,
+            })
+        }
     },
 
-    uniform1fv: function(uniform, fv) {
+    uniform1fv: function(uniform, fv, local) {
         if (isStr(uniform)) uniform = this.uniform[uniform]
         if (!uniform) {
             if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
@@ -173,14 +179,16 @@ const __glu__ = {
         }
         gl.uniform1fv(uniform.glLoc, fv)
 
-        context.env.uniforms.push({
-            method:   UNIFORM_1FV,
-            uniform:  uniform,
-            fv:       fv,
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                method:   UNIFORM_1FV,
+                uniform:  uniform,
+                fv:       fv,
+            })
+        }
     },
 
-    uniform3fv: function(uniform, fv) {
+    uniform3fv: function(uniform, fv, local) {
         if (isStr(uniform)) uniform = this.uniform[uniform]
         if (!uniform) {
             if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
@@ -188,14 +196,16 @@ const __glu__ = {
         }
         gl.uniform3fv(uniform.glLoc, fv)
 
-        context.env.uniforms.push({
-            method:  UNIFORM_3FV,
-            uniform: uniform,
-            fv:      fv,
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                method:  UNIFORM_3FV,
+                uniform: uniform,
+                fv:      fv,
+            })
+        }
     },
 
-    uniform4fv: function(uniform, fv) {
+    uniform4fv: function(uniform, fv, local) {
         if (isStr(uniform)) uniform = this.uniform[uniform]
         if (!uniform) {
             if (env.config.failOnMissingUniform) throw new Error(`Missing a uniform!`)
@@ -203,14 +213,16 @@ const __glu__ = {
         }
         gl.uniform4fv(uniform.glLoc, fv)
 
-        context.env.uniforms.push({
-            method:   UNIFORM_4FV,
-            uniform:  uniform,
-            fv:       fv,
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                method:   UNIFORM_4FV,
+                uniform:  uniform,
+                fv:       fv,
+            })
+        }
     },
 
-    uniformMatrix4fv: function(uniform, fv) {
+    uniformMatrix4fv: function(uniform, fv, local) {
         if (isStr(uniform)) uniform = this.uniform[uniform]
         if (!uniform) {
             if (env.config.failOnMissingUniform) new Error(`Missing a uniform!`)
@@ -218,26 +230,30 @@ const __glu__ = {
         }
         gl.uniformMatrix4fv(uniform.glLoc, false, fv)
 
-        context.env.uniforms.push({
-            method:  UNIFORM_MATRIX_4FV, //uniformMatrix4fv',
-            uniform: uniform,
-            fv:    fv,
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                method:  UNIFORM_MATRIX_4FV, //uniformMatrix4fv',
+                uniform: uniform,
+                fv:    fv,
+            })
+        }
     },
 
-    applyModelMatrix: function() {
+    applyModelMatrix: function(local) {
         if (!this.uniform.uModelMatrix) return
         gl.uniformMatrix4fv(this.uniform.uModelMatrix.glLoc, false, this.modelMatrix)
 
-        context.env.uniforms.push({
-            //type:    'uniformMatrix4fv',
-            method:   UNIFORM_MATRIX_4FV,
-            uniform:  this.uniform.uModelMatrix,
-            fv:        mat4.clone(this.modelMatrix),
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                //type:    'uniformMatrix4fv',
+                method:   UNIFORM_MATRIX_4FV,
+                uniform:  this.uniform.uModelMatrix,
+                fv:        mat4.clone(this.modelMatrix),
+            })
+        }
     },
 
-    applyNormalMatrix: function() {
+    applyNormalMatrix: function(local) {
         if (!this.uniform.uNormalMatrix) return
 
         // calculate the normal matrix out of the model one (model => invert => transpose)
@@ -246,11 +262,13 @@ const __glu__ = {
         mat4.transpose(this.normalMatrix, this.invMatrix)
         gl.uniformMatrix4fv(this.uniform.uNormalMatrix.glLoc, false, this.normalMatrix)
 
-        context.env.uniforms.push({
-            method:   UNIFORM_MATRIX_4FV,
-            uniform:  this.uniform.uNormalMatrix,
-            fv:       mat4.clone(this.normalMatrix),
-        })
+        if (!local) {
+            context.env.uniforms.push({
+                method:   UNIFORM_MATRIX_4FV,
+                uniform:  this.uniform.uNormalMatrix,
+                fv:       mat4.clone(this.normalMatrix),
+            })
+        }
     },
 
     pushMatrix: function() {
