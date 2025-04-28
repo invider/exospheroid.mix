@@ -20,7 +20,6 @@ class Camera extends EntityFrame {
 
     projectionMatrix() {
         const aspect = gl.canvas.width / gl.canvas.height
-        this.hfov = (2 * Math.atan(aspect * Math.tan((this.vfov * DEG_TO_RAD) * .5))) * RAD_TO_DEG
         return mat4.iperspective(this.vfov, gl.canvas.width/gl.canvas.height, this.zNear, this.zFar)
 
         /*
@@ -95,4 +94,11 @@ class Camera extends EntityFrame {
         }, [])
     }
 
+    getHFOV() {
+        return (2 * Math.atan(aspect * Math.tan((this.vfov * DEG_TO_RAD) * .5))) * RAD_TO_DEG
+    }
+
+    getVFOV() {
+        return this.vfov
+    }
 }

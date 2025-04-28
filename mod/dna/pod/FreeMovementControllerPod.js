@@ -8,6 +8,9 @@ class FreeMovementControllerPod {
             name:      'controller',
             speed:     20,
             turnSpeed: 1,
+            zoomSpeed: .005,
+            minFOV:    1,
+            maxFOV:    120,
             mouseCaptureMask: 2,
             moveOnClick: true,
             mouseMoveMask: 7,
@@ -33,6 +36,11 @@ class FreeMovementControllerPod {
             lab.monitor.mouseBroker = null
         }
         lab.monitor.controller.unbindAll()
+    }
+
+    zoom(delta) {
+        const __ = this.__
+        __.vfov = clamp(__.vfov + delta * this.zoomSpeed, this.minFOV, this.maxFOV)
     }
 
     push(action, factor, dt) {
@@ -144,15 +152,17 @@ class FreeMovementControllerPod {
         }
     }
 
+    onMouseWheel(e) {
+        if (e.deltaY !== 0) this.zoom(e.deltaY)
+    }
+
     onPointerLock() {
-        log('LOCK')
         this.moveOnClick  = false
         this.reverseYaw   = true
         this.reversePitch = true
     }
 
     onPointerRelease() {
-        log('ON RELEASE')
         this.moveOnClick  = true
         this.reverseYaw   = false
         this.reversePitch = false
