@@ -46,7 +46,7 @@ function scene() {
     }))
     */
 
-    lab.port.attach( new dna.geo.Form({
+    const cuboid = lab.port.attach( new dna.geo.Form({
         name: 'cuboid',
         pos: vec3(0, 0, 0),
         rot: vec3(0, 0, 0),
@@ -89,6 +89,7 @@ function scene() {
             this.rotSpeed[2] = .2
         },
     }))
+    lab.port.cam.lookAt(cuboid)
 
     /*
     lab.spawn(dna.geo.Image, {

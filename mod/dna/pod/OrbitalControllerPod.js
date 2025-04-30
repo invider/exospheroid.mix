@@ -18,10 +18,16 @@ class OrbitalControllerPod {
         this.pushers = new Float32Array(ZOOM_Y + 1) // (!) need to be zeroed for accumulation!
     }
 
-    capture() {
-        lab.broker = this
+    init() {
+        this.capture()
     }
 
+    capture() {
+        lab.monitor.mouseBroker = this
+        lab.monitor.controller.bindAll(this)
+    }
+
+    /*
     init() {
         // register additional actions
         env.bind.push('KeyE')     // fly up
@@ -30,6 +36,7 @@ class OrbitalControllerPod {
         env.bind.push('PageDown') // roll right
         this.capture()
     }
+    */
 
     push(action, factor, dt) {
         const __ = this.__
@@ -37,37 +44,37 @@ class OrbitalControllerPod {
         const turnSpeed = this.turnSpeed
 
         switch(action) {
-            case FORWARD:
+            case dry.FORWARD:
                 if (vec3.dist(__.pos, __.lookAt) > this.maxDist) {
                     __.moveZ(-speed * dt)
                 }
                 break
-            case STRAFE_LEFT:
+            case dry.STRAFE_LEFT:
                 __.moveX(-speed * dt)
                 break
-            case BACKWARD:
+            case dry.BACKWARD:
                 __.moveZ(speed * dt)
                 break
-            case STRAFE_RIGHT:
+            case dry.STRAFE_RIGHT:
                 __.moveX(speed * dt)
                 break
-            case FLY_UP:
+            case dry.FLY_UP:
                 __.moveY(speed * dt)
                 break
-            case FLY_DOWN:
+            case dry.FLY_DOWN:
                 __.moveY(-speed * dt)
                 break
 
-            case ZOOM_Y:
+            case dry.ZOOM_Y:
                 if (factor > 0 || vec3.dist(__.pos, __.lookAt) > this.maxDist) {
                     __.moveZ(factor * dt)
                 }
                 break
 
-            case SHIFT_YAW:
+            case dry.SHIFT_YAW:
                 __.moveX(speed * factor * dt)
                 break
-            case SHIFT_PITCH:
+            case dry.SHIFT_PITCH:
                 __.moveY(speed * factor * dt)
                 break
 

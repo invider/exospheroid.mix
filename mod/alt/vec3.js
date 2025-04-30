@@ -981,4 +981,4 @@ extend(vec3, {
     validate,
     assert: __assert__,
 })
-
+math.vec3 = vec3

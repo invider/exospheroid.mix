@@ -262,4 +262,3 @@ function similar(m, n, precision) {
 function toString(src) {
     return `mat2[${src[0]}, ${src[1]}, ${src[2]}, ${src[3]}]`
 }
-

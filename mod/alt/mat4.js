@@ -228,9 +228,9 @@ function iortho(left, right, bottom, top, near, far) {
 // @param {array/vec3} up - the up camera orientation 3D vector (tilt)
 // @return {array/mat4} the look-at 4x4 matrix
 function lookAt(cam, tar, up) {
-    const zAxis = vec3.n( vec3.isub(cam, tar) )
-    const xAxis = vec3.n( vec3.icross(up, zAxis) )
-    const yAxis = vec3.n( vec3.icross(zAxis, xAxis) )
+    const zAxis = math.vec3.inormalize( math.vec3.isub(cam, tar) )
+    const xAxis = math.vec3.inormalize( math.vec3.icross(up, zAxis) )
+    const yAxis = math.vec3.inormalize( math.vec3.icross(zAxis, xAxis) )
 
     return this.from4V3(xAxis, yAxis, zAxis, cam)
 }
@@ -463,3 +463,4 @@ extend(mat4, {
 
     equals,
 })
+math.mat4 = mat4

@@ -18,6 +18,24 @@ class Camera extends EntityFrame {
         if (this.controller) this.controller.capture()
     }
 
+    lookAt(pos) {
+        if (isArr(pos)) {
+            this.target    = pos
+            this.targetXYZ = null
+        } else if (isNum(pos)) {
+            this.target    = vec3(arguments[0], arguments[1], arguments[2])
+            this.targetXYZ = null
+        } else if (isObj(pos)) {
+            if (isNum(pos.x) && isNum(pos.y) && isNum(pos.z)) {
+                this.target    = null
+                this.targetXYZ = pos
+            } else if (isArr(pos.pos)) {
+                this.target    = pos.pos
+                this.targetXYZ = null
+            }
+        }
+    }
+
     projectionMatrix() {
         const aspect = gl.canvas.width / gl.canvas.height
         return mat4.iperspective(this.vfov, gl.canvas.width/gl.canvas.height, this.zNear, this.zFar)
@@ -43,16 +61,33 @@ class Camera extends EntityFrame {
 
     viewMatrix() {
         let m
-        if (this.lookAt) {
+        if (this.target) {
             m = mat4.lookAt(
                 this.pos,
-                this.lookAt,
+                this.target,
                 this.up,
             )
             // fix the attitude based on the look up matrix
             this.left = mat4.extractV3(m, 0)
             this.up   = mat4.extractV3(m, 1)
             this.dir  = mat4.extractV3(m, 2)
+
+        } else if (this.targetXYZ) {
+            const at = vec3(
+                this.targetXYZ.x,
+                this.targetXYZ.y,
+                this.targetXYZ.z,
+            )
+            m = mat4.lookAt(
+                this.pos,
+                this.targetXYZ,
+                this.up,
+            )
+            // fix the attitude based on the look up matrix
+            this.left = mat4.extractV3(m, 0)
+            this.up   = mat4.extractV3(m, 1)
+            this.dir  = mat4.extractV3(m, 2)
+
         } else {
             vec3.normalize( this.up, this.up )
             vec3.normalize( this.dir, this.dir )

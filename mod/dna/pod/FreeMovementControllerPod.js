@@ -5,18 +5,18 @@ class FreeMovementControllerPod {
 
     constructor(st) {
         extend(this, {
-            name:      'controller',
-            speed:     20,
-            turnSpeed: 1,
-            zoomSpeed: .005,
-            minFOV:    1,
-            maxFOV:    120,
+            name:            'controller',
+            speed:            20,
+            turnSpeed:        1,
+            zoomSpeed:       .005,
+            minFOV:           1,
+            maxFOV:           120,
             mouseCaptureMask: 2,
-            moveOnClick: true,
-            mouseMoveMask: 7,
+            moveOnClick:      true,
+            mouseMoveMask:    7,
 
-            reversePitch: false,
-            reverseYaw:   false,
+            reversePitch:     false,
+            reverseYaw:       false,
         }, st)
 
         this.pushers = new Float32Array(32)
