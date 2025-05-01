@@ -4,7 +4,12 @@ function scene() {
         Z:     13,
         name: 'cam',
         _pods: [
-            new dna.pod.FreeMovementControllerPod(),
+            new dna.pod.FreeMovementControllerPod({
+                name: 'freeMovementController',
+            }),
+            new dna.pod.OrbitalControllerPod({
+                name: 'orbitalController',
+            }),
         ],
     })
     lab.port.bindCamera(cam)
@@ -68,6 +73,7 @@ function scene() {
                 evo: function(dt) {
                     const __ = this.__
                     __.pos[1] += .25 * dt
+                    //__.pos[1] += 2 * dt
                 },
             },
             new dna.geo.Surface({
@@ -89,7 +95,6 @@ function scene() {
             this.rotSpeed[2] = .2
         },
     }))
-    lab.port.cam.lookAt(cuboid)
 
     /*
     lab.spawn(dna.geo.Image, {
@@ -153,9 +158,10 @@ function scene() {
     */
 
     // move camera back a little
-    pin.cam.pos[1] = 4
-    pin.cam.pos[2] = 16
-    pin.cam.dir[1] = .2
+    cam.pos[1] = 4
+    cam.pos[2] = 16
+    cam.dir[1] = .2
 
+    lab.port.cam.lookAt(cuboid)
 }
 scene.Z = 101

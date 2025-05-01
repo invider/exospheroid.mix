@@ -8,14 +8,25 @@ class OrbitalControllerPod {
 
     constructor(st) {
         extend(this, {
-            name:      'mover',
+            name:      'controller',
             speed:     20,
             turnSpeed: 2,
             r:         10,
             maxDist:   3,
+
+            zoomSpeed:       .005,
+            minFOV:           1,
+            maxFOV:           120,
+
+            mouseCaptureMask: 2,
+            moveOnClick:      true,
+            mouseMoveMask:    7,
+
+            reversePitch:     false,
+            reverseYaw:       false,
         }, st)
 
-        this.pushers = new Float32Array(ZOOM_Y + 1) // (!) need to be zeroed for accumulation!
+        this.pushers = new Float32Array(32)
     }
 
     init() {
@@ -23,8 +34,22 @@ class OrbitalControllerPod {
     }
 
     capture() {
+        this.disabled = false
         lab.monitor.mouseBroker = this
         lab.monitor.controller.bindAll(this)
+    }
+
+    release() {
+        this.disabled = true
+        if (lab.monitor.mouseBroker === this) {
+            lab.monitor.mouseBroker = null
+            lab.monitor.controller.unbindAll(this)
+        }
+    }
+
+    zoom(delta) {
+        const __ = this.__
+        __.vfov = clamp(__.vfov + delta * this.zoomSpeed, this.minFOV, this.maxFOV)
     }
 
     /*
@@ -45,7 +70,15 @@ class OrbitalControllerPod {
 
         switch(action) {
             case dry.FORWARD:
-                if (vec3.dist(__.pos, __.lookAt) > this.maxDist) {
+                if (__.target) {
+                    if (vec3.dist(__.pos, __.target) > this.maxDist) {
+                        __.moveZ(-speed * dt)
+                    }
+                } else if (__.targetXYZ) {
+                    if (vec3.dist(__.pos, vec3(__.targetXYZ.x, __.targetXYZ.y, __.targetXYZ.z)) > this.maxDist) {
+                        __.moveZ(-speed * dt)
+                    }
+                } else {
                     __.moveZ(-speed * dt)
                 }
                 break
@@ -65,17 +98,19 @@ class OrbitalControllerPod {
                 __.moveY(-speed * dt)
                 break
 
-            case dry.ZOOM_Y:
+            case dry.ZOOM:
                 if (factor > 0 || vec3.dist(__.pos, __.lookAt) > this.maxDist) {
                     __.moveZ(factor * dt)
                 }
                 break
 
-            case dry.SHIFT_YAW:
+            case dry.YAW:
                 __.moveX(speed * factor * dt)
                 break
-            case dry.SHIFT_PITCH:
+            case dry.PITCH:
                 __.moveY(speed * factor * dt)
+                break
+            case dry.ROLL:
                 break
 
         }
@@ -92,40 +127,38 @@ class OrbitalControllerPod {
         }
     }
 
-    activate(action) {
-        if (this.disabled) return
-        this.pushers[action] = 1
+    actuate(action) {
+        this.pushers[action.id] = 1
     }
 
-    stop(action) {
-        if (this.disabled) return
-        this.pushers[action] = 0
+    act(action) {
+    }
+
+    cutOff(action) {
+        this.pushers[action.id] = 0
     }
 
     onMouseDown(e) {
-        if (this.disabled) return
-        /*
-        if (e.button == 0) {
-            if (!env.mouseLock) captureMouse()
+        if (this.mouseCaptureMask && !env.mouseLock) {
+            if (e.buttons & this.mouseCaptureMask) {
+                lib.util.captureMouse()
+            }
         }
-        */
     }
 
     onMouseUp(e) {}
 
     onMouseMove(e) {
-        if (this.disabled) return
-
         if (e.buttons & 4) {
             const dx = e.movementX, dy = e.movementY
 
             if (dx) {
                 // accumulate horizontal mouse movement
-                this.pushers[SHIFT_YAW] -= dx * .2
+                this.pushers[dry.YAW] -= dx * .2
             }
             if (dy) {
                 // accumulate vertical mouse movement
-                this.pushers[SHIFT_PITCH] += dy * 0.2
+                this.pushers[dry.PITCH] += dy * 0.2
             }
         } else if (e.buttons & 2) {
             // TODO
@@ -133,13 +166,19 @@ class OrbitalControllerPod {
     }
 
     onMouseWheel(e) {
-        if (this.disabled) return
+        if (e.deltaY !== 0) this.zoom(e.deltaY)
+    }
 
-        const dx = e.deltaX, dy = e.deltaY
+    onPointerLock() {
+        this.moveOnClick  = false
+        this.reverseYaw   = true
+        this.reversePitch = true
+    }
 
-        if (dy) {
-            // accumulate zoom
-            this.pushers[ZOOM_Y] += dy * .25
-        }
+    onPointerRelease() {
+        this.moveOnClick  = true
+        this.reverseYaw   = false
+        this.reversePitch = false
     }
 }
+

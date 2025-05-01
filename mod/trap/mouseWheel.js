@@ -8,8 +8,9 @@ function mouseWheel(e) {
         lab.port.zoomIn(e.wheelDeltaY, x, y)
     }
     */
-    if (lab.monitor.mouseBroker && lab.monitor.mouseBroker.onMouseWheel) {
-        lab.monitor.mouseBroker.onMouseWheel(e)
+    const mouseBroker = lab.monitor.mouseBroker
+    if (mouseBroker && mouseBroker.onMouseWheel) {
+        mouseBroker.onMouseWheel(e)
     }
 }
 

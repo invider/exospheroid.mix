@@ -5,7 +5,8 @@ function mouseUp(e) {
         if (state.trap && isFun(state.trap.mouseUp)) state.trap.mouseUp(e)
     }
 
-    if (lab.monitor.mouseBroker && lab.monitor.mouseBroker.onMouseUp) {
-        lab.monitor.mouseBroker.onMouseUp(e)
+    const mouseBroker = lab.monitor.mouseBroker
+    if (mouseBroker && mouseBroker.onMouseUp && !mouseBroker.disabled) {
+        mouseBroker.onMouseUp(e)
     }
 }

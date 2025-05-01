@@ -4,7 +4,9 @@ function mouseDown(e) {
         if (isFun(state.mouseDown)) state.mouseDown(e)
         if (state.trap && isFun(state.trap.mouseDown)) state.trap.mouseDown(e)
     }
-    if (lab.monitor.mouseBroker && lab.monitor.mouseBroker.onMouseDown) {
-        lab.monitor.mouseBroker.onMouseDown(e)
+
+    const mouseBroker = lab.monitor.mouseBroker
+    if (mouseBroker && mouseBroker.onMouseDown && !mouseBroker.disabled) {
+        mouseBroker.onMouseDown(e)
     }
 }

@@ -1,5 +1,6 @@
 function mouseMove(e) {
-    if (lab.monitor.mouseBroker && lab.monitor.mouseBroker.onMouseMove) {
-        lab.monitor.mouseBroker.onMouseMove(e)
+    const mouseBroker = lab.monitor.mouseBroker
+    if (mouseBroker && mouseBroker.onMouseMove && !mouseBroker.disabled) {
+        mouseBroker.onMouseMove(e)
     }
 }

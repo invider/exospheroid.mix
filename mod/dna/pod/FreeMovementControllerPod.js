@@ -27,15 +27,17 @@ class FreeMovementControllerPod {
     }
 
     capture() {
+        this.disabled = false
         lab.monitor.mouseBroker = this
         lab.monitor.controller.bindAll(this)
     }
 
     release() {
+        this.disabled = true
         if (lab.monitor.mouseBroker === this) {
             lab.monitor.mouseBroker = null
+            lab.monitor.controller.unbindAll()
         }
-        lab.monitor.controller.unbindAll()
     }
 
     zoom(delta) {

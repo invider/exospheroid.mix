@@ -1,4 +1,3 @@
-
 const EntityFrame = require('dna/EntityFrame')
 
 class Camera extends EntityFrame {
